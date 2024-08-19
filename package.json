@@ -23,6 +23,10 @@
   },
   "homepage": "https://github.com/KolarDev/KolFintech#readme",
   "dependencies": {
-    "express": "^4.19.2"
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.2",
+    "validator": "^13.12.0"
   }
 }
