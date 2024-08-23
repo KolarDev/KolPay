@@ -5,9 +5,16 @@ const bcrypt = require("bcryptjs");
 
 
 const userSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: [true, "Please input your name"],
+        maxLength: [40, "Name can not be more than 40 characters"],
+        minLength: [6, "Name can not be less than 6 characters"]
+    },
     username: {
         type: String,
         required: [true, "Please input your name"],
+        unique: [true, "Username is not available! try another one"],
         maxLength: [40, "Name must not be more than 40 characters"],
         minLength: [6, "Name must not be less than 6 characters"]
     },
@@ -17,6 +24,23 @@ const userSchema = new mongoose.Schema({
         unique: [true, "Email already exists!"],
         lowercase: true,
         validate: [validator.isEmail, "Please provide a valid Email"]
+    },
+    phone: {
+        type: Number,
+        required: true
+    },
+    accountNumber: {
+        type: String,
+        unique: true
+    },
+    balance: {
+        type: Number,
+        default: 0.00
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin", "director"],
+        default: "user"
     },
     password: {
         type: String,
@@ -34,9 +58,21 @@ const userSchema = new mongoose.Schema({
             message: "Passwords are not the same!!"
         }
     },
-    balance: {
-        type: Number,
-        default: 0.00
+    nationality: {
+        type: String,
+        enum: ["Nigeria", "Ghana", "Togo"]
+    },
+    dob: {
+        type: Date
+    },
+    address: {
+        type: String,
+        minLength: [8, "Address can not be less than 6 characters"]
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now(),
+        select: false
     },
     passwordChangedAt: Date,
     passwordResetToken: String,

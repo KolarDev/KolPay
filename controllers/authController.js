@@ -1,6 +1,7 @@
 const User = require("./../models/userModel");
 const AppError = require("./../utils/appError");
 const jwt = require("jsonwebtoken");
+const genAccNo = require("./../utils/genAccNo");
 
 
 const generateToken = (id) => {
@@ -32,25 +33,22 @@ const sendToken = (user, statusCode, res) => {
 
 // Registering user account
 exports.register = async (req, res) => {
-    const newUser = await User.create({
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm,
-        passwordChangedAt: req.body.passwordChangedAt
-    });
+    
+    const { fullName, username, email, phone, password, passwordConfirm, passwordChangedAt }
+        = req.body;
+    
+    const accountNumber = genAccNo(phone);
+
+    const newUser = await User.create({ fullName, username, email, phone, accountNumber, password, passwordConfirm, passwordChangedAt });
+    
     console.log(newUser);
 
     sendToken(newUser, 201, res);
 
-    // req.newUser = newUser; //for use to send email
-    // next(); // Move on...
-}
-
-
-exports.sendConfirmationEmail = (req, res) => {
+    // await new Email(newUser, confirmUrl).sendWelcomeMessage();
 
 }
+
 
 // Logging user in
 exports.login = async (req, res) => {

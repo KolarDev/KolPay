@@ -31,5 +31,11 @@ router
     .delete(userController.deleteUser) // Delete User Account
 
 
+router
+    .route("/balance")
+    .get(userController.getMyBalance); // Get user account balance
+
+
+
 
 module.exports = router;
