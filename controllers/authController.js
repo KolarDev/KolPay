@@ -12,7 +12,7 @@ const generateToken = (id) => {
 
 const sendToken = (user, statusCode, res) => {
     const token = generateToken(user._id);
-    console.log(token);
+    // console.log(token);
     const cookieOptions = {
         expires: new Date(
             Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -34,12 +34,12 @@ const sendToken = (user, statusCode, res) => {
 // Registering user account
 exports.register = async (req, res) => {
     
-    const { fullName, username, email, phone, password, passwordConfirm, passwordChangedAt }
+    const { fullname, username, email, phone, password, passwordConfirm, passwordChangedAt }
         = req.body;
     
-    const accountNumber = genAccNo(phone);
+    const accountNumber = await genAccNo(phone);
 
-    const newUser = await User.create({ fullName, username, email, phone, accountNumber, password, passwordConfirm, passwordChangedAt });
+    const newUser = await User.create({ fullname, username, email, phone, accountNumber, password, passwordConfirm, passwordChangedAt });
     
     console.log(newUser);
 

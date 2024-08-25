@@ -44,5 +44,4 @@ module.exports = class Email {
         await newTransport().sendMail(mailOptions);
     }
 
-    
 }

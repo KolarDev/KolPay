@@ -1,6 +1,6 @@
-### Fintech Api:
+# Fintech Api:
 
-## KOLPAY API
+## KolPay API
 
 ## Overview
 
@@ -30,7 +30,7 @@
 
 
 ## Routes available in the API:
-# User:
+### User:
   - Register route
   - Login route
   - Get user's account balance
@@ -42,7 +42,7 @@
   - Update user profile route
   - Delete user profile route
 
-# Trasanction:
+### Trasanction:
   - Get All transaction route
   - Get a transaction record route
   - Deposit funds route

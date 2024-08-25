@@ -19,7 +19,7 @@ const transactionSchema = new mongoose.Schema({
     date: {
         type: Date,
         default: Date.now(),
-    },
+    }
 });
 
 const Transaction = mongoose.model("Transaction", transactionSchema);
