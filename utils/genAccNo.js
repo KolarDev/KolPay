@@ -1,8 +1,10 @@
 const User = require("./../models/userModel");
 
 
-module.exports = async (phone) => {
-    const lastUser = await User.countDocuments();
+module.exports = async (user, phone) => {
+    const lastUser = await user.countDocuments();
+
+    console.log(lastUser, "HI");
 
     const serialNumber = (lastUser + 1).toString().padStart(5, "0");
 

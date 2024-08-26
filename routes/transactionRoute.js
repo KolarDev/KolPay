@@ -16,3 +16,7 @@ router.route("/withdrawal")
 
 router.route("/transfer")
     .post(transactionController.transfer);
+
+
+
+module.exports = router;

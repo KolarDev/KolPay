@@ -3,6 +3,21 @@ const Transaction = require("./../models/transactionModel");
 const User = require("./../models/userModel");
 
 
+const receipt = (user, transaction) => {
+    return  `
+    *** Transaction Receipt ***
+    ----------------------------
+    User: ${user.fullname}
+    Transaction Type: ${transaction.type.toUpperCase()}
+    Amount: $${amount.toFixed(2)}
+    Date: ${transaction.date.toLocaleString()}
+    Balance After Transaction: $${user.balance.toFixed(2)}
+    Transaction ID: ${transaction._id}
+    ----------------------------
+    Thank you for your transaction.
+  `;
+}
+
 exports.deposit = async (req, res, next) => {
 
     const { amount } = req.body;
@@ -18,12 +33,9 @@ exports.deposit = async (req, res, next) => {
     res.status(200).json({
         status: "success",
         message: "Transaction Successful👍",
-        data: {
-
-        }
+        reciept: receipt(user, transaction)
     });
 
-    next();
 }
 
 exports.withdrawal = async (req, res, next) => {
@@ -32,13 +44,18 @@ exports.withdrawal = async (req, res, next) => {
 
     const transaction = await Transaction.create({ id: req.user.id, type: "withdrawal", amount });
 
-    if (user.balance < amount) return next(new AppError("Insufficient Funds!", 401));
-    
     const user = await User.findById(req.user.id);
+
+    if (user.balance < amount) return next(new AppError("Insufficient Funds!", 401));
 
     user.balance -= amount;
 
-    next();
+    res.status(200).json({
+        status: "success",
+        message: "Transaction Successful👍",
+        reciept: receipt(user, transaction)
+    });
+
 }
 
 exports.transfer = async (req, res, next) => {
@@ -60,12 +77,8 @@ exports.transfer = async (req, res, next) => {
 
     res.status(200).json({
         status: "success",
-        amount: amount,
-        message: "Transaction Successful!",
-        data: {
-            transaction
-        }
+        message: "Transaction Successful👍",
+        reciept: receipt(sender, transaction)
     });
-    
-    next();
+
 }

@@ -37,7 +37,7 @@ exports.register = async (req, res) => {
     const { fullname, username, email, phone, password, passwordConfirm, passwordChangedAt }
         = req.body;
     
-    const accountNumber = await genAccNo(phone);
+    const accountNumber = await genAccNo(User, phone);
 
     const newUser = await User.create({ fullname, username, email, phone, accountNumber, password, passwordConfirm, passwordChangedAt });
     
@@ -90,6 +90,7 @@ exports.protectRoute = async (req, res, next) => {
 
     // 4. Save the confirm user in as req.user for use in the protected route.
     req.user = confirmUser;
+    res.locals.user = confirmUser;
     // Road clear!! Move on...
     next();
 }
