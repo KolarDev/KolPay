@@ -4,8 +4,8 @@ module.exports = class Email {
     constructor(user, url) {
         this.to = user.email;
         this.url = url;
-        this.from = `kolardev <${process.env.EMAIL_FROM}>`;
-        this.userName = user.name.split(" ")[0];
+        this.from = `KolPay <${process.env.EMAIL_FROM}>`;
+        this.userName = user.fullname.split(" ")[1];
         
     }
 
@@ -23,10 +23,17 @@ module.exports = class Email {
         }
         
         return nodemailer.createTransport({
-            service: "Gmail",
+            // service: "gmail",
+            // auth: {
+            //     user: process.env.EMAIL,
+            //     pass: process.env.EMAIL_PASSWORD
+            // }
+
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT,
             auth: {
-                user: process.env.EMAIL,
-                pass: process.env.EMAIL_PASSWORD
+              user: process.env.EMAIL_USERNAME,
+              pass: process.env.EMAIL_PASSWORD
             }
             
         });
@@ -34,14 +41,14 @@ module.exports = class Email {
 
     async send(message, subject) {
         
-        mailOptions = {
+        const mailOptions = {
             from: this.from,
             to: this.to,
             subject,
             text: message
         }
 
-        await newTransport().sendMail(mailOptions);
+        await this.newTransport().sendMail(mailOptions);
     }
 
 }
