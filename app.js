@@ -6,6 +6,7 @@ const bodyparser = require("body-parser");
 
 const usersRouter = require("./routes/userRoute");
 const transactionsRouter = require("./routes/transactionRoute");
+const adminRouter = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -18,5 +19,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/transactions", transactionsRouter);
+app.use("/api/v1/admin", adminRouter);
+
 
 module.exports = app;

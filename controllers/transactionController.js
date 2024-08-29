@@ -7,7 +7,9 @@ const Email = require("./../utils/email");
 const receipt = (user, transaction) => {
     return  `
     *** Transaction Receipt ***
+    
     ----------------------------
+
     Account Name: ${user.fullname}
 
     Transaction Type: ${transaction.transactionType.toUpperCase()}
