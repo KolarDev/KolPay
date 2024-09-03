@@ -35,12 +35,12 @@ const sendToken = (user, statusCode, res) => {
 // Registering user account
 exports.register = async (req, res) => {
     
-    const { fullname, username, email, phone, password, passwordConfirm, passwordChangedAt }
+    const { fullname, username, email, phone, password, passwordConfirm, passwordChangedAt, role }
         = req.body;
     
     const accountNumber = await genAccNo(User, phone);
 
-    const newUser = await User.create({ fullname, username, email, phone, accountNumber, password, passwordConfirm, passwordChangedAt });
+    const newUser = await User.create({ fullname, username, email, phone, accountNumber, password, passwordConfirm, passwordChangedAt, role });
     
     console.log(newUser);
 

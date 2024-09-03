@@ -17,10 +17,6 @@ router
     .patch(authController.resetPassword) // Reset user password 
 
 
-router
-    .route("/")
-    .get(userController.getAllUsers); // Get all Users (Restricted to only admin)
-
 
 // User Profile routes
 router.use(authController.protectRoute);
