@@ -17,7 +17,10 @@ exports.userProfile = async(req, res, next) => {
 
 // Update User Profile details
 exports.updateProfile = async(req, res, next) => {
-    const user = await User.findOneAndUpdate(req.body, {});
+    const user = await User.findOneAndUpdate(req.user.id, req.body, {
+        new: true,
+        runValidators: true
+    });
 
     if (!user) next(new AppError("User not found!", 404));
 

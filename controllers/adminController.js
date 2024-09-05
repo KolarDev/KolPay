@@ -124,3 +124,23 @@ exports.getBy = model =>
         });
     
     }
+
+
+exports.updateUser = async (req, res, next) => {
+    
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+    });
+
+    if (!user) {
+        return next(new AppError("User not found !", 404));
+    }
+
+    res.status(201).json({
+        status: "Updated",
+        data: {
+            data: user
+        }
+    });
+}
