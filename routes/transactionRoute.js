@@ -6,16 +6,17 @@ const transactionController = require("./../controllers/transactionController");
 
 const router = express.Router();
 
-router.use(authController.protectRoute);
+// protect route for only loggedIn users
+router.use(authController.protectRoute); 
 
 router.route("/deposit")
-    .post(transactionController.deposit);
+    .post(transactionController.deposit); // deposit funds to kolpay
 
 router.route("/withdrawal")
-    .post(transactionController.withdrawal);
+    .post(transactionController.withdrawal); // withdraw funds from kolpay to kolpay
 
 router.route("/transfer")
-    .post(transactionController.transfer);
+    .post(transactionController.transfer); // transfer funds from kolpay to kolpay
 
 
 

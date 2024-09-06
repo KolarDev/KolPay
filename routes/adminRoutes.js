@@ -3,31 +3,35 @@ const authController = require("./../controllers/authController");
 const userController = require("./../controllers/userController");
 const transactionController = require("./../controllers/transactionController");
 const adminController = require("./../controllers/adminController");
-const User = require("./../models/userModel");
-const Transaction = require("./../models/transactionModel");
+// const User = require("./../models/userModel");
+// const Transaction = require("./../models/transactionModel");
 
 const router = express.Router();
 
-// Protect all routes to only logged in users
-router.use(authController.protectRoute);
+// Protect all routes to only logged in users and Give access to only admins
+router.use(authController.protectRoute, adminController.adminAuth("admin"));
 
-// Give access to only the admins
-router.use(adminController.adminAuth("admin"));
+// // Give access to only the admins
+// router.use(adminController.adminAuth("admin"));
 
 router
     .route("/dashboard")
-    .get(adminController.dashboard);
+    .get(adminController.dashboard); // View all activities stats
 
 router
     .route("/users")
-    .get(adminController.getAllUsers)
-    .get(adminController.getBy(User));
+    .get(adminController.getAllUsers) // Retreive all users
+    // .get(adminController.getBy(User));
 
 router
     .route("/transactions")
-    .get(adminController.getAllTransactions)
-    .get(adminController.getBy(Transaction));
+    .get(adminController.getAllTransactions) // Retreive all transactions
+    .get(adminController.getTransactionBy); // Filter Traansactions
 
+router
+    .route("/block")
+    .get(adminController.blockedUsers)
+    .patch(adminController.block)
 // router
 //     .route("/reports")
 //     .get(adminController.dashboard);
