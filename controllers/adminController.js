@@ -1,7 +1,7 @@
 const Transaction = require("./../models/transactionModel");
 const User = require("./../models/userModel");
 const AppError = require("../utils/appError");
-const Email = require("./../utils/email");
+const { Email, sms } = require("./../utils/notificator");
 const APIqueries = require("../utils/APIqueries");
 
 // Middleware to restrict action based on roles
@@ -233,7 +233,7 @@ exports.blockedUsers = async (req, res, next) => {
     }
 }
 
-// Admin can temporarily delete a user be setting the active field to false
+// Admin can temporarily delete a user by setting the active field to false 
 exports.deleteUser = async (req, res, next) => {
     try {
 
@@ -258,3 +258,37 @@ exports.deleteUser = async (req, res, next) => {
         });
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Generate Transaction Report
+const generateTransactionReport = async (req, res) => {
+    try {
+      const transactions = await Transaction.find().populate('userId', 'username email');
+      const csvData = transactions.map(tx => ({
+        user: `${tx.userId.username} (${tx.userId.email})`,
+        type: tx.type,
+        amount: tx.amount,
+        date: tx.date.toLocaleString(),
+        balanceAfter: tx.balanceAfter
+      }));
+  
+      res.status(200).json(csvData);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to generate report', error });
+    }
+  };

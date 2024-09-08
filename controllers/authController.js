@@ -1,14 +1,17 @@
 const { promisify } = require("util");
+const speakeasy = require("speakeasy");
+const qrcode = require("qrcode");
 const User = require("./../models/userModel");
 const AppError = require("./../utils/appError");
 const jwt = require("jsonwebtoken");
-const genAccNo = require("./../utils/genAccNo");
+const { Email, sms } = require("./../utils/notificator");
+const { genAccNo, generateOtp } = require("../utils/generator");
 
 
 const generateToken = (id) => {
     return jwt.sign({ id: id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN
-    });
+    }); 
 }
 
 const sendToken = (user, statusCode, res) => {
@@ -164,3 +167,71 @@ exports.updatePassword = async (req, res, next) => {
     // 4. Log the user in. Send jwt
     sendToken(user, 200, res);
 };
+
+
+// Two Factor Authentication (2FA)
+
+// 1. Generating secret for Authenticator App
+exports.twoFaAuth = async (req, res, next) => {
+    try {
+        const secret = speakeasy.generateSecret({ name: "KolPayApp" });
+
+        const qrCode = qrcode.toDataURL(secret.otpauth_url, (err, data_url) => {
+            if (err) throw err;
+            return data_url;
+        });
+        
+        const user = req.user;
+        user.secretBase32 = secret;
+        await user.save({ validateBeforeSave: false });
+
+        res.status(200).json({
+            status: "success",
+            data: {
+                secret,
+                qrCode
+            }
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            status: "failed !",
+            message: "Error generating secret code or qrcode !",
+            error
+        });
+    }
+    next();
+}
+
+// 2. Verifying the token from Authenticator App
+exports.verify2FaToken = (req, res, next) => {
+    
+    try {
+        const { userInputToken } = req.body;
+
+        const verified = speakeasy.totp.verify({
+            secret: req.user.secretBase32,
+            encoding: "base32",
+            token: userInputToken 
+        });
+
+        if (!verified) return next(new AppError("Invalid token", 401));
+
+        res.status(200).json({
+            status: "success",
+            message: "Token is valid"
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "failed !",
+            message: "Error verifying the token !",
+            error
+        });
+    }
+
+    next();
+
+}
+
+// Authenticating using OTP via email or phone
+

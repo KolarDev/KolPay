@@ -21,11 +21,12 @@ router
 router
     .route("/users")
     .get(adminController.getAllUsers) // Retreive all users
-    // .get(adminController.getBy(User));
+    .delete(adminController.deleteUser) // Delete a user
+    
 
 router
     .route("/transactions")
-    .get(adminController.getAllTransactions) // Retreive all transactions
+    // .get(adminController.getAllTransactions) // Retreive all transactions
     .get(adminController.getTransactionBy); // Filter Traansactions
 
 router

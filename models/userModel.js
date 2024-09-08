@@ -60,6 +60,7 @@ const userSchema = new mongoose.Schema({
             message: "Passwords are not the same!!"
         }
     },
+    secretBase32: String,
     nationality: {
         type: String,
         enum: ["Nigeria", "Ghana", "Togo"]
@@ -115,6 +116,7 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
+// update passwordChangedAt field if password is changed
 userSchema.pre("save", function (next) {
     if (!this.isModified("password") || this.isNew) return next();
 
@@ -148,7 +150,6 @@ userSchema.methods.changedPasswordafter = function (JWTTimestamp) {
         // Parsing the time the user changed the password into integer
         const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
 
-        console.log(changedTimeStamp, JWTTimestamp);
         // This will return true if the user actually changed the password after the token has been issued
         return JWTTimestamp < changedTimeStamp;
     }
