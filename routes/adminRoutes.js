@@ -9,7 +9,7 @@ const adminController = require("./../controllers/adminController");
 const router = express.Router();
 
 // Protect all routes to only logged in users and Give access to only admins
-router.use(authController.protectRoute, adminController.adminAuth("admin"));
+router.use(authController.protectRoute, adminController.adminAuth("admin", "director"));
 
 // // Give access to only the admins
 // router.use(adminController.adminAuth("admin"));
@@ -26,8 +26,11 @@ router
 
 router
     .route("/transactions")
-    // .get(adminController.getAllTransactions) // Retreive all transactions
-    .get(adminController.getTransactionBy); // Filter Traansactions
+    .get(adminController.getAllTransactions) // Retreive all transactions
+
+router
+    .route("/")
+    .get(adminController.generalQuery()) 
 
 router
     .route("/block")
@@ -37,9 +40,9 @@ router
 //     .route("/reports")
 //     .get(adminController.dashboard);
 
-// router
-//     .route("/logs")
-//     .get(adminController.getAllLogs);
+router
+    .route("/logs")
+    .get(adminController.getAllLogs);
 
 
 

@@ -1,8 +1,17 @@
 const Transaction = require("./../models/transactionModel");
 const User = require("./../models/userModel");
+const AuditLog = require("./../models/auditLogModel");
 const AppError = require("../utils/appError");
 const { Email, sms } = require("./../utils/notificator");
 const APIqueries = require("../utils/APIqueries");
+
+
+// Function to simplify logging in each admin operation
+const auditLogger = async (adminId, action, details) => {
+    const log = new AuditLog({ adminId, action, details });
+    await log.save();
+}
+
 
 // Middleware to restrict action based on roles
 exports.adminAuth = (...roles) => {
@@ -48,6 +57,8 @@ exports.dashboard = async (req, res, next) => {
         
         ]);
 
+        await auditLogger(req.user.id, "Viewed Dashboard", "viewed the dashboard");
+
         res.status(200).json({
             status: "success",
             totalUsers,
@@ -66,12 +77,14 @@ exports.dashboard = async (req, res, next) => {
 
 }  
 
-
+// Get all users
 exports.getAllUsers = async (req, res, next) => {
     try {
         const users = await User.find().select("-password");
 
         if (!users) next(new AppError("Users not found!", 404));
+
+        await auditLogger(req.user.id, "viewed list of all users", "viewed list of all users");
 
         res.status(200).json({
             status: "success",
@@ -89,12 +102,15 @@ exports.getAllUsers = async (req, res, next) => {
     }
 }
 
+// Get all transactions
 exports.getAllTransactions = async (req, res, next) => {
 
     try {
         const transactions = await Transaction.find().populate("_id", "email");
 
-        if (!transactions) next(new AppError("Transactions not found!", 404));2
+        if (!transactions) next(new AppError("Transactions not found!", 404));
+
+        await auditLogger(req.user.id, "List of all transactions", "List of all transactions");
 
         res.status(200).json({
             status: "success",
@@ -112,57 +128,39 @@ exports.getAllTransactions = async (req, res, next) => {
     }
 }
 
-// Filter Transaction by type/id/
-exports.getTransactionBy = async (req, res, next) => {
+
+// General query function This function can perform any query from any database collection
+exports.generalQuery = model => {
     try {
-        const { type, userId, startDate, endDate } = req.query;
-        let filter = {};
-        if (type) filter.transactionType = type;
-        if (userId) filter.userId = userId;
-        if (startDate && endDate) filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
-        const transactions = await Transaction.find(filter);
+        async (req, res, next) => {
 
-        if (!transactions) next(new AppError("No match trasaction!", 404));
-
-        res.status(200).json({
-            status: "success",
-            result: transactions.length,
-            data: {
-                transactions
-            }
-        });
+            const features = new APIqueries(model.find(), req.query)
+                .filter()
+                .sort()
+                .limitFields()
+                .paginate();
+            const doc = await features.query;
+    
+            await auditLogger(req.user.id, "queried for a data", `queried for ${model}`);
+    
+            // RESPONSE
+            res.status(200).json({
+                status: "success",
+                result: doc.length,
+                data: {
+                    data: doc
+                }
+            });
+        
+        }
     } catch (error) {
         res.status(500).json({
             status: "failed !",
-            message: "Failed to retrieve transactions !",
+            message: `Failed to retrieve ${model} !`,
             error
         });
     }
 }
-
-// exports.getBy = model =>
-//     async (req, res, next) => {
-//         // To allow for nested GET reviews (hack)
-//         let filter = {};
-//         if (req.params.id) filter = { model: req.params.id };
-
-//         const features = new APIqueries(model.find(filter), req.query)
-//             .filter()
-//             .sort()
-//             .limitFields()
-//             .paginate();
-//         const doc = await features.query;
-
-//         // RESPONSE
-//         res.status(200).json({
-//             status: "success",
-//             result: doc.length,
-//             data: {
-//                 data: doc
-//             }
-//         });
-    
-//     }
 
 // Admins can update a user's role, isBlocked & active status
 exports.updateUser = async (req, res, next) => {
@@ -174,6 +172,8 @@ exports.updateUser = async (req, res, next) => {
     });
 
     if (!user) return next(new AppError("User not found !", 404));
+
+    await auditLogger(req.user.id, " ", " ");
 
     res.status(201).json({
         status: "success",
@@ -193,6 +193,8 @@ exports.block = async (req, res, next) => {
 
         user.isBlocked = !user.isBlocked;
         await user.save;
+
+        await auditLogger(req.user.id, " ", " ");
 
         res.status(201).json({
             status: "success",
@@ -216,6 +218,8 @@ exports.blockedUsers = async (req, res, next) => {
         const users = await User.find({ isBlocked: { $ne: false } }).select("-password");
 
         if (!users) next(new AppError("No blocked user!", 404));
+
+        await auditLogger(req.user.id, "queried for all blocked users", "queried for all blocked users");
 
         res.status(200).json({
             status: "success",
@@ -243,6 +247,8 @@ exports.deleteUser = async (req, res, next) => {
         user.active = false;
         await user.save;
 
+        await auditLogger(req.user.id, "deleted a user", `deleted user ${user.fullname}`);
+
         res.status(201).json({
             status: "success",
             data: {
@@ -259,8 +265,26 @@ exports.deleteUser = async (req, res, next) => {
     }
 }
 
+// Get all audit logs (route would be restricted to only directors)
+exports.getAllLogs = async (req, res, next) => {
+    try {
+        const logs = await AuditLog.find();
 
+        res.status(201).json({
+            status: "success",
+            data: {
+                logs
+            }
+        });
 
+    } catch (error) {
+        res.status(500).json({
+            status: "failed !",
+            message: "Failed to retrieve logs !",
+            error
+        });
+    }
+}
 
 
 

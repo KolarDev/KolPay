@@ -169,7 +169,7 @@ exports.updatePassword = async (req, res, next) => {
 };
 
 
-// Two Factor Authentication (2FA)
+//                                TWO FACTOR AUTHENTICATION (2FA)
 
 // 1. Generating secret for Authenticator App
 exports.twoFaAuth = async (req, res, next) => {
@@ -205,7 +205,6 @@ exports.twoFaAuth = async (req, res, next) => {
 
 // 2. Verifying the token from Authenticator App
 exports.verify2FaToken = (req, res, next) => {
-    
     try {
         const { userInputToken } = req.body;
 
@@ -214,7 +213,6 @@ exports.verify2FaToken = (req, res, next) => {
             encoding: "base32",
             token: userInputToken 
         });
-
         if (!verified) return next(new AppError("Invalid token", 401));
 
         res.status(200).json({

@@ -26,10 +26,16 @@ router
     .patch(userController.updateProfile) // Update User Profile details
     .delete(userController.deleteUser) // Delete User Account
 
+router.route("/transactions/id")
+    .get(userController.getMyTransactions);
 
-router
+ router
     .route("/balance")
     .get(userController.getMyBalance); // Get user account balance
+
+router
+    .route("/2faAuth")
+    .post(authController.twoFaAuth, authController.verify2FaToken);
 
 
 

@@ -1,7 +1,7 @@
 const AppError = require("../utils/appError");
 const Transaction = require("./../models/transactionModel");
 const User = require("./../models/userModel");
-const Email = require("./../utils/email");
+const Email = require("./../utils/notificator");
 
 
 const receipt = (user, transaction) => {
@@ -103,3 +103,4 @@ exports.transfer = async (req, res, next) => {
     });
 
 }
+
