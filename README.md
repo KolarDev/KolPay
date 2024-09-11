@@ -1,51 +1,51 @@
-# Fintech Api:
+# Fintech Backend Application
 
-## KolPay API
+![KolPay API](https://img.shields.io/badge/Node.js-Express.js-brightgreen)
 
-## Overview
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [API Endpoints](#api-endpoints)
+- [Admin Dashboard](#admin-dashboard)
+- [Security](#security)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
- These API is a Fintech project aimed at solving the problem digital funds processing. It comes with variety of features above:
+## Project Overview
+This is a backend application for a fintech platform built using Node.js and Express.js. It provides users with functionality to manage their financial transactions, such as deposits, withdrawals, and transfers. It also includes an admin dashboard for monitoring user activities, generating reports, and handling transactions.
 
- - KolPay allows users to create an account with their personal credentials and login. 
+## Features
+- **User Authentication**: Sign-up, login, password reset.
+- **User Profiles and Account Management**: Manage user information and view transaction history.
+- **Transaction Management**: Deposit, withdrawal, transfer, and balance checks.
+- **Account Number Generation**: Unique account numbers generated using user information. User's seriel number and Phone number
+- **Admin Dashboard**: User management, transaction monitoring, reports, and audit logs.
+- **Security**: Data encryption, JWT authentication, and two-factor authentication.
+- **Notifications**: Email and SMS notifications for transactions.
 
- - It assigns the user a unique account number authomatically making the first five digits of their phone number the last five digits of their unique account number. 
+## Tech Stack
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB (Mongoose)
+- **Authentication**: JWT (JSON Web Tokens)
+- **Email Service**: Nodemailer with SendGrid or any other SMTP service
+- **Admin Dashboard**: MongoDB Aggregate pipeline and other mongoDB statistics and query methods 
+- **Logging**: Winston, Audit logs
 
- - It also allows a user to send funds, deposit and also withdraw fellow users. 
+## Prerequisites
+Before you begin, ensure you have the following installed on your machine:
+- Node.js (v14 or higher)
+- MongoDB
+- Postman (for API testing)
 
- - Provided flexibity in the api is updating a user account balance, checking account balance and records of a user transactions and a lot more...
+## Getting Started
+To get a local copy up and running, follow these simple steps:
 
- 
-
-## Tools Used includes: 
-  1. **languages:** Javascript server side (Node.js)
-  2. **Frameworks:** Express.js
-  3. **Database:** MongoDB mongoose
-  3. **Packages:** mongoose, validator for DB and schema Management. bcryptjs and crypto for password management and hashing. JsonWebToken for user authentication and authorization and a lot more..
-
-## Features include:
-  - User  authentication signUp/Login Using JsonWebToken.
-  - Generated unique account number for transactions such as fund deposit, transfer and withdraw.
-  - Updating and checking of user's account balance and transaction record
-  - Secured user data
-
-
-## Routes available in the API:
-### User:
-  - Register route
-  - Login route
-  - Get user's account balance
-  - Preview user's transactions record
-  - Update password route
-  - Forgot password and reset password routes
-  - Get all Users route (Restricted to only admin and director)
-  - Get user profile route
-  - Update user profile route
-  - Delete user profile route
-
-### Trasanction:
-  - Get All transaction route
-  - Get a transaction record route
-  - Deposit funds route
-  - Withdrawal funds route
-  - Transfer funds route
- 
+1. **Clone the repo:**
+   ```bash
+   git clone https://github.com/KolarDev/KolPay.git
+   cd your-repo-name
