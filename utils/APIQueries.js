@@ -21,7 +21,6 @@ class APIQueries {
         if (this.queryString.sort) {
             const sortBy = this.queryString.sort.split(",").join(" ");
             this.query = this.query.sort(sortBy);
-            console.log(sortBy);
         } else {
             this.query = this.query.sort("-createdAt");
         }
@@ -32,7 +31,6 @@ class APIQueries {
         if (this.queryString.fields) {
             const fields = this.queryString.fields.split(",").join(" ");
             this.query = this.query.select(fields);
-            console.log(fields);
         } else {
             this.query = this.query.select("-__v");
         }

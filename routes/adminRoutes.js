@@ -9,7 +9,7 @@ const adminController = require("./../controllers/adminController");
 const router = express.Router();
 
 // Protect all routes to only logged in users and Give access to only admins
-router.use(authController.protectRoute, adminController.adminAuth("admin", "director"));
+router.use(authController.protectRoute, adminController.adminAuth("admin", "Super-admin"));
 
 // // Give access to only the admins
 // router.use(adminController.adminAuth("admin"));

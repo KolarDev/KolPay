@@ -25,9 +25,9 @@ KolPay is a backend application for a fintech platform built using Node.js and E
 - **Transaction Management**: Deposit, withdrawal, transfer, and balance checks.
 - **Account Number Generation**: Unique account numbers generated using user information. User's seriel number and Phone number
 - **Admin Dashboard**: User management, transaction monitoring, reports, and audit logs.
-- **Security**: Data encryption, JWT authentication, and two-factor authentication.
+- **Security**: Data encryption, JWT authentication, and two-factor authentication (Authenticator App & sms), Data Sanitization, Secure HTTP headers, Parameter Pollution and several other security techniques against attacks like brute force, XSS, DoS and so on.
 - **Notifications**: Email and SMS notifications for transactions.
-
+- **Error Handling**: Server error handling (uncaughtException & unhandledRejection). DB Errors. Clear error messages for both in development and production mode. And so on...
 ## Tech Stack
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (Mongoose)

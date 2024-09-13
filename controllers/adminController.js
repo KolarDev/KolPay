@@ -77,55 +77,13 @@ exports.dashboard = async (req, res, next) => {
 
 }  
 
-// Get all users
-exports.getAllUsers = async (req, res, next) => {
-    try {
-        const users = await User.find().select("-password");
+// Get the list of top Accounts/Users with their total transactions amount
 
-        if (!users) next(new AppError("Users not found!", 404));
-
-        await auditLogger(req.user.id, "viewed list of all users", "viewed list of all users");
-
-        res.status(200).json({
-            status: "success",
-            result: users.length,
-            data: {
-                users
-            }
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: "failed !",
-            message: "Failed to retrieve users !",
-            error
-        });
-    }
-}
-
-// Get all transactions
-exports.getAllTransactions = async (req, res, next) => {
-
-    try {
-        const transactions = await Transaction.find().populate("_id", "email");
-
-        if (!transactions) next(new AppError("Transactions not found!", 404));
-
-        await auditLogger(req.user.id, "List of all transactions", "List of all transactions");
-
-        res.status(200).json({
-            status: "success",
-            result: transactions.length,
-            data: {
-                transactions
-            }
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: "failed !",
-            message: "Failed to retrieve transactions !",
-            error
-        });
-    }
+exports.TopAccounts = (req, res, next) => {
+    req.query.limit = "5",
+    req.query.sort = "balance",
+    req.query.fields = "fullname,username,email,accountNumber,phone"
+    next(); 
 }
 
 
@@ -194,7 +152,10 @@ exports.block = async (req, res, next) => {
         user.isBlocked = !user.isBlocked;
         await user.save;
 
-        await auditLogger(req.user.id, " ", " ");
+        await auditLogger(
+            req.user.id,
+           ` ${ "Blocked" ? user.isBlocked === true : "Unblocked" } user ${user.fullname} with id ${user.id}`,
+            " ");
 
         res.status(201).json({
             status: "success",
@@ -206,7 +167,7 @@ exports.block = async (req, res, next) => {
     } catch (error) {
         res.status(500).json({
             status: "failed !",
-            message: "Failed to block/unblock user !",
+            message: `Failed to block/unblock user !`,
             error
         });
     }
@@ -240,16 +201,20 @@ exports.blockedUsers = async (req, res, next) => {
 // Admin can temporarily delete a user by setting the active field to false 
 exports.deleteUser = async (req, res, next) => {
     try {
-
         const user = User.findById(req.params.id);
         if (!user) return next(new AppError("User not found !", 404));
+        if (!(req.user.role.includes("Super-admin"))) return next(new AppError("You are not allowed to delete an admin !", 401));
 
         user.active = false;
         await user.save;
 
-        await auditLogger(req.user.id, "deleted a user", `deleted user ${user.fullname}`);
+        await auditLogger(
+            req.user.id,
+            "deleted a user",
+            `deleted user ${user.fullname} with id ${user.id} temporarily from accessing his account and from the list of active users`
+        );
 
-        res.status(201).json({
+        res.status(200).json({
             status: "success",
             data: {
                 data: user
@@ -265,12 +230,13 @@ exports.deleteUser = async (req, res, next) => {
     }
 }
 
-// Get all audit logs (route would be restricted to only directors)
+
+// Get all audit logs (route would be restricted to only Super-admins)
 exports.getAllLogs = async (req, res, next) => {
     try {
         const logs = await AuditLog.find();
 
-        res.status(201).json({
+        res.status(200).json({
             status: "success",
             data: {
                 logs
@@ -315,4 +281,60 @@ const generateTransactionReport = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: 'Failed to generate report', error });
     }
-  };
+};
+  
+
+
+
+//                        -------Alternatives to make GET Requests--------
+
+// // Get all users
+// exports.getAllUsers = async (req, res, next) => {
+//     try {
+//         const users = await User.find().select("-password");
+
+//         if (!users) next(new AppError("Users not found!", 404));
+
+//         await auditLogger(req.user.id, "viewed list of all users", "viewed list of all users");
+
+//         res.status(200).json({
+//             status: "success",
+//             result: users.length,
+//             data: {
+//                 users
+//             }
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             status: "failed !",
+//             message: "Failed to retrieve users !",
+//             error
+//         });
+//     }
+// }
+
+// // Get all transactions
+// exports.getAllTransactions = async (req, res, next) => {
+
+//     try {
+//         const transactions = await Transaction.find().populate("_id", "email");
+
+//         if (!transactions) next(new AppError("Transactions not found!", 404));
+
+//         await auditLogger(req.user.id, "List of all transactions", "List of all transactions");
+
+//         res.status(200).json({
+//             status: "success",
+//             result: transactions.length,
+//             data: {
+//                 transactions
+//             }
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             status: "failed !",
+//             message: "Failed to retrieve transactions !",
+//             error
+//         });
+//     }
+// }
