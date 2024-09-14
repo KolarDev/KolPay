@@ -21,21 +21,17 @@ router
 router
     .route("/users")
     .get(adminController.getAllUsers) // Retreive all users
-    .delete(adminController.deleteUser) // Delete a user
+    .delete(adminController.deleteUser); // Delete a user
     
 
 router
     .route("/transactions")
-    .get(adminController.getAllTransactions) // Retreive all transactions
+    .get(adminController.getAllTransactions); // Retreive all transactions
 
 router
-    .route("/")
-    .get(adminController.generalQuery()) 
-
-router
-    .route("/block")
+    .route("/users/block/:id")
     .get(adminController.blockedUsers)
-    .patch(adminController.block)
+    .patch(adminController.block);
 // router
 //     .route("/reports")
 //     .get(adminController.dashboard);

@@ -51,8 +51,8 @@ To get a local copy up and running, follow these simple steps:
    cd your-repo-name
 
 2. **Navigate to the project directory**
-  ```bash
-  cd fintech-backend
+   ```bash
+   cd fintech-backend
 
 3. **Install dependencies**
   ```bash

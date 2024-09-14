@@ -26,8 +26,8 @@ router
     .patch(userController.updateProfile) // Update User Profile details
     .delete(userController.deleteUser) // Delete User Account
 
-router.route("/transactions/id")
-    .get(userController.getMyTransactions);
+// router.route("/transactions/id")
+//     .get(userController.getMyTransactions);
 
  router
     .route("/balance")

@@ -12,7 +12,6 @@ const auditLogger = async (adminId, action, details) => {
     await log.save();
 }
 
-
 // Middleware to restrict action based on roles
 exports.adminAuth = (...roles) => {
    
@@ -23,6 +22,15 @@ exports.adminAuth = (...roles) => {
         }
         next();
     }
+}
+
+
+// Get the list of top Accounts/Users with their total transactions amount
+exports.TopAccounts = (req, res, next) => {
+    req.query.limit = "5",
+    req.query.sort = "balance",
+    req.query.fields = "fullname,username,email,accountNumber,phone"
+    next(); 
 }
 
 // The admin dashboard to monitor/view the Users and Transactions statistics
@@ -77,29 +85,22 @@ exports.dashboard = async (req, res, next) => {
 
 }  
 
-// Get the list of top Accounts/Users with their total transactions amount
 
-exports.TopAccounts = (req, res, next) => {
-    req.query.limit = "5",
-    req.query.sort = "balance",
-    req.query.fields = "fullname,username,email,accountNumber,phone"
-    next(); 
-}
+// General query function. This function can perform any query from any database collection
+const getAllAndQuery = (Model) => {
+    async (req, res, next) => {
+        try {
 
-
-// General query function This function can perform any query from any database collection
-exports.generalQuery = model => {
-    try {
-        async (req, res, next) => {
-
-            const features = new APIqueries(model.find(), req.query)
+            const features = new APIqueries(Model.find(), req.query)
                 .filter()
                 .sort()
                 .limitFields()
                 .paginate();
             const doc = await features.query;
+
+            if (!doc) return next(new AppError("No document found !", 404));
     
-            await auditLogger(req.user.id, "queried for a data", `queried for ${model}`);
+            await auditLogger(req.user.id, "queried for a data", `queried for ${Model}`);
     
             // RESPONSE
             res.status(200).json({
@@ -110,20 +111,26 @@ exports.generalQuery = model => {
                 }
             });
         
+        
+        } catch (error) {
+            res.status(500).json({
+                status: "failed !",
+                message: `Failed to retrieve ${Model} !`,
+                error
+            });
         }
-    } catch (error) {
-        res.status(500).json({
-            status: "failed !",
-            message: `Failed to retrieve ${model} !`,
-            error
-        });
     }
 }
+
+// Perform all queries on users
+exports.getAllUsers = getAllAndQuery(User);
+// Perform all queries on transactions
+exports.getAllTransactions = getAllAndQuery(Transaction);
 
 // Admins can update a user's role, isBlocked & active status
 exports.updateUser = async (req, res, next) => {
     
-    const { active, isBlocked, role } = req.body;
+    const { active, role } = req.body;
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
@@ -141,13 +148,18 @@ exports.updateUser = async (req, res, next) => {
     });
 }
 
-// Admin blocking of users functionality
+// Admin blocking and unblocking of users functionality
 exports.block = async (req, res, next) => {
     try {
         
-        const user = User.findById(req.params.id);
+        const user = User.findById(req.params.id).populate();
 
         if (!user) return next(new AppError("User not found !", 404));
+
+        // Deny access if an admin tries to block fellow admin. Only the super-admin is allowed
+        if (!(req.user.role.includes("Super-admin"))) {
+            return next(new AppError("You are not allowed to block fellow admin !", 401));
+        }
 
         user.isBlocked = !user.isBlocked;
         await user.save;
@@ -155,7 +167,8 @@ exports.block = async (req, res, next) => {
         await auditLogger(
             req.user.id,
            ` ${ "Blocked" ? user.isBlocked === true : "Unblocked" } user ${user.fullname} with id ${user.id}`,
-            " ");
+            `${req.user.fullname} just blocked/unblocked a user`
+        );
 
         res.status(201).json({
             status: "success",
@@ -203,7 +216,11 @@ exports.deleteUser = async (req, res, next) => {
     try {
         const user = User.findById(req.params.id);
         if (!user) return next(new AppError("User not found !", 404));
-        if (!(req.user.role.includes("Super-admin"))) return next(new AppError("You are not allowed to delete an admin !", 401));
+
+        // Deny access if an admin tries to delete fellow admin. Only the super-admin is allowed
+        if (!(req.user.role.includes("Super-admin"))) {
+            return next(new AppError("You are not allowed to delete fellow admin !", 401));
+        }
 
         user.active = false;
         await user.save;
