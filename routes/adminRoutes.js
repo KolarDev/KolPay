@@ -28,13 +28,10 @@ router
     .route("/transactions")
     .get(adminController.getAllTransactions); // Retreive all transactions
 
-router
-    .route("/users/block/:id")
-    .get(adminController.blockedUsers)
-    .patch(adminController.block);
-// router
-//     .route("/reports")
-//     .get(adminController.dashboard);
+// Block a user
+router.patch("/users/:id/block", adminController.block);
+// View all blocked users
+router.get("/users/blocked", adminController.blockedUsers);
 
 router
     .route("/logs")

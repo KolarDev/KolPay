@@ -50,25 +50,3 @@ exports.getMyBalance = async (req, res) => {
         }
     });
 }
-
-exports.getMyTransactions = (model, popOptions) => {
-    async (req, res, next) => {
-
-        let query = model.findById(req.params.id);
-        if (popOptions) query = model.findById(req.params.id).populate(popOptions);
-
-        const doc = await query;
-    
-        if (!doc) {
-            return next(new AppError("No document found for that ID !", 404));
-        }
-    
-        res.status(200).json({
-            status: "success",
-            data: {
-                data: doc
-            }
-        });
-        
-    }; 
-}

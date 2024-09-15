@@ -15,9 +15,10 @@ router.route("/withdrawal")
     .post(transactionController.withdrawal); // withdraw funds from kolpay to kolpay
 
 router.route("/transfer")
-    .post(transactionController.transfer); // transfer funds from kolpay to kolpay 
+    .post(transactionController.transfer); // transfer funds from kolpay to kolpay
 
-
+// Get user transaction history
+router.get("/history", transactionController.transactionsHistory);
 
 
 

@@ -91,14 +91,17 @@ To get a local copy up and running, follow these simple steps:
 ## API Endpoints
 
 ### User Authentication
-  - POST /api/v1/auth/signup - Register a new user
-  - POST /api/v1/auth/login - Log in a user
-  - POST /api/v1/auth/forgot-password - Send password reset link
-  - POST /api/v1/auth/reset-password - Reset user password
+  - POST /api/v1/user/register - Register a new user
+  - POST /api/v1/user/login - Log in a user
+  - POST /api/v1/user/forgotPassword - Send password reset link
+  - PATCH /api/v1/user/resetPassword - Reset user password
+  - PATCH /api/v1/user/updatePassword - Update user password
+  - GET /api/v1/user/2faAuth - Enable two factor authenctication
+  - POST /api/v1/user/2faAuth - Verify with two factor authentication
 ### User Management
-  - GET /api/v1/users/me - Get user profile
-  - PATCH /api/v1/users/me - Update user profile
-  - POST /api/v1/users/me/avatar - Upload user avatar
+  - GET /api/v1/users/profile/:id - Get user profile
+  - PATCH /api/v1/users/profile/:id - Update user profile but not password
+  - DELETE /api/v1/users/profile/:id - Delete user account
 ### Transactions
   - POST /api/v1/transactions/deposit - Deposit funds
   - POST /api/v1/transactions/withdraw - Withdraw funds
@@ -111,11 +114,12 @@ To get a local copy up and running, follow these simple steps:
   The admin dashboard allows administrators to manage users, monitor transactions, review suspicious activities, and generate reports. Below are the key routes available in the admin dashboard:
 
 ### Admin Endpoints
-  - GET /api/v1/admin/users - Get all users
+  - GET /api/v1/admin/dashboard - Admin dashboard 
   - PATCH /api/v1/admin/users/:id/block - Block a user
-  - PATCH /api/v1/admin/users/:id/unblock - Unblock a user
+  - PATCH /api/v1/admin/users/blocked - View all blocked users
+  - GET /api/v1/admin/users - View all users
   - GET /api/v1/admin/transactions - View all transactions
-  - GET /api/v1/admin/fraud-logs - View fraud detection logs
+  - GET /api/v1/admin/logs - View all admin actions logs
   - POST /api/v1/admin/report - Generate a transaction report
 
 ## Security
@@ -128,16 +132,12 @@ All sensitive user data, such as passwords, are encrypted using bcrypt before be
 Users can enable 2FA for enhanced account security. 2FA can be completed via an OTP sent to the user’s email or phone number, or by using an authenticator app.
 
 3. Fraud Detection
-A rule-based and machine learning-powered system detects suspicious transactions, such as unusual spending patterns or location anomalies, and raises alerts or blocks transactions for review.
+Upcoming..........
+
+4. Data Sanitization, Secure HTTP headers, Parameter Pollution and several other security techniques against attacks like brute force, XSS, DoS and so on.
 
 ## Testing
-The application has unit and integration tests for the API endpoints, ensuring reliable and robust functionality. We use the jest and supertest libraries for our testing suite.
-
-<!-- ### Running Tests
-To run the tests, use the following command:
-  ```bash
-  npm test -->
-
+All routes are tested using postman API tester.
 
 ## Contributing
 Contributions are welcome! If you want to contribute to this project, please follow these steps:

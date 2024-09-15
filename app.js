@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyparser = require("body-parser");
 const rateLimit = require("express-rate-limit");
+const globalErrHandler = require("./controllers/errorController");
 
 
 const usersRouter = require("./routes/userRoute");
@@ -33,5 +34,7 @@ app.use("/api/v1/admin", adminRouter);
 app.all("*", (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
+
+app.use(globalErrHandler);
 
 module.exports = app;

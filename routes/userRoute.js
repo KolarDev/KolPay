@@ -2,7 +2,6 @@ const express = require("express");
 const userController = require("./../controllers/userController");
 const authController = require("./../controllers/authController");
 
-
 const router = express.Router();
 
 // 1. Registration and login
@@ -10,16 +9,21 @@ router.post("/register", authController.register); // User Registration
 router.post("/login", authController.login); // User Login
     
 // 2. Password Management
+router.post("/forgotPassword", authController.forgotPassword); // If user forgets his password
+router.patch("/resetPassword/:token", authController.resetPassword); // Reset user password
+
+router.patch("/updatePassword", authController.updatePassword); // Update User Password
+
+// 3. Two Factor Authentication
 router
-    .route("/:id")
-    .patch(authController.updatePassword) // Update User Password
-    .patch(authController.forgotPassword) // If user forgets his password
-    .patch(authController.resetPassword) // Reset user password 
+    .route("/2faAuth")
+    .get(authController.twoFaAuth)
+    .post(authController.verify2FaToken);
 
 
-
-// User Profile routes
+// 4. User Profile routes
 router.use(authController.protectRoute);
+
 router
     .route("/profile/:id")
     .get(userController.userProfile) // Get User Profile details
@@ -29,15 +33,9 @@ router
 // router.route("/transactions/id")
 //     .get(userController.getMyTransactions);
 
- router
+router
     .route("/balance")
     .get(userController.getMyBalance); // Get user account balance
-
-router
-    .route("/2faAuth")
-    .post(authController.twoFaAuth, authController.verify2FaToken);
-
-
 
 
 module.exports = router;
