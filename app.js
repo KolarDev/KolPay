@@ -1,6 +1,14 @@
 const express = require("express");
 const bodyparser = require("body-parser");
 const rateLimit = require("express-rate-limit");
+const morgan = require("morgan");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+const hpp = require("hpp");
+const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
+
+
 const globalErrHandler = require("./controllers/errorController");
 
 
@@ -17,8 +25,32 @@ app.use(bodyparser.json());
 app.use("/api", rateLimit({
     limit: 50,
     windowMs: 60 * 60 * 1000,
-    message: "Too many requests from this IP, Try again in an hour!"
+    message: "IP requets exceed limit, Check back in an hour!"
 }));
+
+// Develeopment logging
+if (process.env.NODE_ENV = "development") {
+    app.use(morgan("dev"));
+}
+
+// Set Security HTTP Headers
+app.use(helmet());
+
+app.use("/api", limiter);
+// Middleware against NoSQL injection attacks
+app.use(mongoSanitize());
+// Middleware against cross-site (xss) attacks
+app.use(xss());
+// Prevent Parameter pollution
+app.use(hpp({
+    whitelist: []
+}));
+
+// Body parser for req.body
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(cookieParser());
+
 
 // Root route for testing server
 app.get("/", (req, res) => {
