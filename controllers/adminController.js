@@ -141,22 +141,22 @@ exports.updateUser = async (req, res, next) => {
 exports.block = async (req, res, next) => {
     try {
         
-        const user = User.findById(req.params.id).populate();
+        const user = await User.findById(req.params.id)
 
         if (!user) return next(new AppError("User not found !", 404));
 
         // Deny access if an admin tries to block fellow admin. Only the super-admin is allowed
-        if (!(req.user.role.includes("Super-admin"))) {
+        if (user.role.includes("admin", "Super-admin") && !(req.user.role.includes("Super-admin"))) {
             return next(new AppError("You are not allowed to block fellow admin !", 401));
         }
 
-        user.isBlocked = !user.isBlocked;
+        user.isBlocked = !(user.isBlocked);
         await user.save;
 
         await auditLogger(
             req.user.id,
-           ` ${ "Blocked" ? user.isBlocked === true : "Unblocked" } user ${user.fullname} with id ${user.id}`,
-            `${req.user.fullname} just blocked/unblocked a user`
+           ` ${ user.isBlocked === true ? "Blocked" : "Unblocked" } user ${user.fullname} with id ${user.id}`,
+            `Admin ${req.user.fullname} just blocked/unblocked a user`
         );
 
         res.status(201).json({
@@ -172,13 +172,14 @@ exports.block = async (req, res, next) => {
             message: `Failed to block/unblock user !`,
             error
         });
+        console.log(error);
     }
 }
 
 // Admin can retrieve blocked users
 exports.blockedUsers = async (req, res, next) => {
     try {
-        const users = await User.find({ isBlocked: { $ne: false } }).select("-password");
+        const users = await User.find({ isBlocked: true }).select("-password");
 
         if (!users) next(new AppError("No blocked user!", 404));
 

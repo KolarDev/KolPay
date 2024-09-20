@@ -2,15 +2,14 @@ const express = require("express");
 const bodyparser = require("body-parser");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
-const mongoSanitize = require("express-mongo-sanitize");
+const mongoSanitize = require("express-mongo-sanitize"); 
 const xss = require("xss-clean");
 const hpp = require("hpp");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 
-
+const AppError = require("./utils/appError");
 const globalErrHandler = require("./controllers/errorController");
-
 
 const usersRouter = require("./routes/userRoute");
 const transactionsRouter = require("./routes/transactionRoute");
@@ -21,12 +20,7 @@ const app = express();
 app.use(express.json());
 app.use(bodyparser.json());
 
-// Limiting requests from same api
-app.use("/api", rateLimit({
-    limit: 50,
-    windowMs: 60 * 60 * 1000,
-    message: "IP requets exceed limit, Check back in an hour!"
-}));
+
 
 // Develeopment logging
 if (process.env.NODE_ENV = "development") {
@@ -36,7 +30,13 @@ if (process.env.NODE_ENV = "development") {
 // Set Security HTTP Headers
 app.use(helmet());
 
-app.use("/api", limiter);
+// Limiting requests from same api
+app.use("/api", rateLimit({
+    limit: 50,
+    windowMs: 60 * 60 * 1000,
+    message: "IP requets exceed limit, Check back in an hour!"
+}));
+
 // Middleware against NoSQL injection attacks
 app.use(mongoSanitize());
 // Middleware against cross-site (xss) attacks

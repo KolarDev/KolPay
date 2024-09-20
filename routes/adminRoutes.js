@@ -19,19 +19,19 @@ router
     .get(adminController.dashboard); // View all activities stats
 
 router
-    .route("/users")
+    .route("/get-users")
     .get(adminController.getAllUsers) // Retreive all users
     .delete(adminController.deleteUser); // Delete a user
     
 
 router
-    .route("/transactions")
+    .route("/get-transactions")
     .get(adminController.getAllTransactions); // Retreive all transactions
 
 // Block a user
-router.patch("/users/:id/block", adminController.block);
+router.patch("/:id/block", adminController.block);
 // View all blocked users
-router.get("/users/blocked", adminController.blockedUsers);
+router.get("/blocked", adminController.blockedUsers);
 
 router
     .route("/logs")
