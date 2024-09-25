@@ -52,7 +52,7 @@ To get a local copy up and running, follow these simple steps:
 
 2. **Navigate to the project directory**
    ```bash
-   cd fintech-backend
+   cd KolPay
 
 3. **Install dependencies**
   ```bash
@@ -62,11 +62,16 @@ To get a local copy up and running, follow these simple steps:
   ```bash
   NODE_ENV=development
   PORT=8000
-  MONGO_URI=your-mongodb-connection-string
+  DATABASE_URL=your-mongodb-connection-string
+  DATABASE_PASSWORD=your-mongodb-password
   JWT_SECRET=your-jwt-secret
-  EMAIL_SERVICE_API_KEY=your-email-service-api-key
-  TWILIO_ACCOUNT_SID=your-twilio-account-sid
-  TWILIO_AUTH_TOKEN=your-twilio-auth-token
+  JWT_EXPIRES_IN=jwt-expire-time
+  JWT_COOKIE_EXPIRES_IN=jwt-cookie-expire-time
+  EMAIL_FROM=your-email-sending-from
+  EMAIL_USERNAME=email-service-username
+  EMAIL_PASSWORD=email-password
+  EMAIL_HOST=email-host
+  EMAIL_PORT=email-port
 
 5. **Install dependencies**
   ```bash

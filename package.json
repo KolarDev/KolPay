@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/KolarDev/KolFintech#readme",
   "dependencies": {
+    "@getbrevo/brevo": "^2.2.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
@@ -33,10 +34,13 @@
     "express-rate-limit": "^7.4.0",
     "helmet": "^7.1.0",
     "hpp": "^0.2.3",
+    "html-to-text": "^9.0.5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.2",
     "nodemailer": "^6.9.14",
+    "pug": "^3.0.3",
     "qrcode": "^1.5.4",
+    "sib-api-v3-sdk": "^8.5.0",
     "speakeasy": "^2.0.0",
     "validator": "^13.12.0",
     "xss-clean": "^0.1.4"

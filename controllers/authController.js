@@ -4,7 +4,7 @@ const qrcode = require("qrcode");
 const User = require("./../models/userModel");
 const AppError = require("./../utils/appError");
 const jwt = require("jsonwebtoken");
-const { Email, sms } = require("./../utils/notificator");
+const Email = require("./../utils/notificator");
 const { genAccNo, generateOtp } = require("../utils/generator");
 
 
@@ -49,7 +49,9 @@ exports.register = async (req, res) => {
 
     sendToken(newUser, 201, res);
 
-    // await new Email(newUser, confirmUrl).sendWelcomeMessage();
+    confirmUrl = "/api/v1/confirmAccount"
+
+    await new Email(newUser, confirmUrl).sendWelcome();
 
 }
 
