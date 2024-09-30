@@ -1,7 +1,7 @@
-doctype html
-html
-  head
-    style.
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
       body {
         font-family: Arial, sans-serif;
         background-color: #f5f5f5;
@@ -30,14 +30,20 @@ html
         text-decoration: none;
         display: inline-block;
       }
-  body
-    .container
-      .header
-        h1 Verify Your Email Address
-      p Hello #{name},
-      p Please verify your email address to complete your account setup.
-      p Click the button below to verify your email:
-      a.btn(href="#{verificationLink}") Verify Email
-      p If you did not sign up for this account, please ignore this email.
-      p Thanks for joining FintechApp!
-      p The FintechApp Team
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Verify Your Email Address</h1>
+      </div>
+      <p>Hello <%= name %>,</p>
+      <p>Please verify your email address to complete your account setup.</p>
+      <p>Click the button below to verify your email:</p>
+      <a class="btn" href="<%= verificationLink %>">Verify Email</a>
+      <p>If you did not sign up for this account, please ignore this email.</p>
+      <p>Thanks for joining FintechApp!</p>
+      <p>The FintechApp Team</p>
+    </div>
+  </body>
+</html>

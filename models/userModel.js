@@ -130,7 +130,7 @@ userSchema.methods.checkPassword = async function (actualPassword, providedpassw
 }
 
 // Generate password reset token
-userSchema.methods.genPasswordResetToken = (req, res, next) => {
+userSchema.methods.genPasswordResetToken = () => {
 
     const resetToken = crypto.randomBytes(32).toString("hex");
 

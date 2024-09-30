@@ -45,7 +45,9 @@ exports.deposit = async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    await new Email(user).send(receipt(user, transaction), "Transaction Receipt");
+    confirmUrl = "/api/v1/confirmAccount"
+
+    await new Email(user, confirmUrl).transactionAlert();
 
     res.status(200).json({
         status: "success",
@@ -103,9 +105,12 @@ exports.transfer = async (req, res, next) => {
     recepient.balance += amount;
     await sender.save({ validateBeforeSave: false }); 
     await recepient.save({ validateBeforeSave: false });
+    
+    const url = "kolpay/supoort"
+    // send transaction alert through email
+    await new Email(recepient, url).creditAlert();
+    await new Email(sender, url).debitAlert();
 
-    // send receipt and alert through email
-    await new Email(sender).send(receipt(sender, transaction), "Transaction Receipt");
 
     res.status(200).json({
         status: "success",
