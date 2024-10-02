@@ -19,7 +19,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .header {
-            background-color: #dc3545; /* Red for debit alert */
+            background-color: #283ba7;
             color: white;
             text-align: center;
             padding: 20px;
@@ -38,13 +38,18 @@
         <div class="header">
             <h1>Debit Transaction Alert</h1>
         </div>
-        <p>Hello <%= userName %>,</p>
+        <p>Hello <%= user.fullname %>,</p>
         <p>A debit transaction was made from your KolPay account.</p>
         <div class="transaction-details">
-            <p>Transaction ID: <%= transaction.id %></p>
-            <p>Amount Debited: ₦<%= transaction.amount %></p>
+            <p>Transaction ID: <%= transaction._id %></p>
+            <p>Transaction Type: <%= transaction.transactionType.toUpperCase() %></p>
+            <% if (transaction.transactionType === "Transfer") { %>
+                <p>From: </p>
+                <p>Bank: KolPay</p>
+            <% } %>
+            <p>Amount Credited: ₦<%= transaction.amount.toFixed(2) %></p>
             <p>Transaction Date: <%= transaction.date %></p>
-            <p>Description: <%= transaction.description %></p>
+            <p>Balance: ₦<%= user.balance.toFixed(2) %></p>
         </div>
         <p>If you did not recognize this transaction, please contact us immediately.</p>
         <p>Thanks,</p>

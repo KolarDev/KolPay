@@ -4,13 +4,13 @@ const htmlToText = require("html-to-text");
 
 
 module.exports = class Email {
-    constructor(user, url) {
+    constructor(user, url, transaction) {
         this.to = user.email;
         this.url = url;
+        this.user = user
         this.from = `KolPay <${process.env.EMAIL_FROM}>`;
         this.firstName = user.fullname.split(" ")[1];
         this.transaction = transaction;
-    
     }
 
     newTransport() {
@@ -31,6 +31,7 @@ module.exports = class Email {
     async send(template, subject) {
         
         const html = await ejs.renderFile(`${__dirname}/../views/emails/${template}.ejs`, {
+            user: this.user,
             firstName: this.firstName,
             url: this.url,
             subject,

@@ -3,7 +3,8 @@ const Transaction = require("./../models/transactionModel");
 const User = require("./../models/userModel");
 const Email = require("./../utils/notificator");
 
-// Transaction Receipt
+//              Transaction Receipt
+
 const receipt = (user, transaction) => {
     return  `
     *** Transaction Receipt ***
@@ -28,8 +29,9 @@ const receipt = (user, transaction) => {
   `;
 }
 
+ 
+//                             Deposit Of Funds
 
-//                                          Deposit Of Funds
 exports.deposit = async (req, res, next) => {
 
      // Accept only these fields as request credentials
@@ -47,7 +49,7 @@ exports.deposit = async (req, res, next) => {
 
     confirmUrl = "/api/v1/confirmAccount"
 
-    await new Email(user, confirmUrl).transactionAlert();
+    await new Email(user, confirmUrl, transaction).creditAlert();
 
     res.status(200).json({
         status: "success",
@@ -58,7 +60,8 @@ exports.deposit = async (req, res, next) => {
 }
 
 
-//                                          Withdrawal Of Funds
+//                        Withdrawal Of Funds
+
 exports.withdrawal = async (req, res, next) => {
 
     // Accept only these fields as request credentials
@@ -85,7 +88,8 @@ exports.withdrawal = async (req, res, next) => {
 
 }
 
-// Transfer Of Funds
+//            Transfer Of Funds
+
 exports.transfer = async (req, res, next) => {
 
      // Accept only these fields as request credentials
@@ -106,7 +110,7 @@ exports.transfer = async (req, res, next) => {
     await sender.save({ validateBeforeSave: false }); 
     await recepient.save({ validateBeforeSave: false });
     
-    const url = "kolpay/supoort"
+    const url = `${req.protocol}://${req.get("host")}/kolpay/support`;
     // send transaction alert through email
     await new Email(recepient, url).creditAlert();
     await new Email(sender, url).debitAlert();

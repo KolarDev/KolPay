@@ -9,7 +9,7 @@ const app = require("./app");
 //   CONNECT DATABASE
 const DB_LOCAL = process.env.DATABASE_URL;
 mongoose.connect(DB_LOCAL)
-    .then(() => console.log("Database Connected Succesfully!"));
+    .then(() => console.log("Database Connected Successfully!"));
 
 const port = process.env.PORT || 8000;
 

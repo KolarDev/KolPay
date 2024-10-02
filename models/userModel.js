@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
+    photo: String,
     balance: {
         type: Number,
         default: 0.00
@@ -158,3 +159,4 @@ userSchema.methods.changedPasswordafter = function (JWTTimestamp) {
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
+
