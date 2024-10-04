@@ -47,9 +47,7 @@ exports.deposit = async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    confirmUrl = "/api/v1/confirmAccount"
-
-    await new Email(user, confirmUrl, transaction).creditAlert();
+    await new Email(user, undefined, transaction).creditAlert();
 
     res.status(200).json({
         status: "success",
@@ -71,14 +69,14 @@ exports.withdrawal = async (req, res, next) => {
 
     const user = await User.findById(req.user.id);
     // return error if insufficient balance
-    if (user.balance < amount) return next(new AppError("Insufficient Funds!", 401));
+    if ( isNaN(amount) || user.balance < amount) return next(new AppError("Insufficient Funds!", 401));
 
     // update user bance and save
     user.balance -= amount;
     await user.save({ validateBeforeSave: false });
 
     // send alert and transaction receipt as email
-    await new Email(user).send(receipt(user, transaction), "Transaction Receipt");
+    await new Email(user, undefined, transaction).debitAlert();
 
     res.status(200).json({
         status: "success",
@@ -110,10 +108,9 @@ exports.transfer = async (req, res, next) => {
     await sender.save({ validateBeforeSave: false }); 
     await recepient.save({ validateBeforeSave: false });
     
-    const url = `${req.protocol}://${req.get("host")}/kolpay/support`;
     // send transaction alert through email
-    await new Email(recepient, url).creditAlert();
-    await new Email(sender, url).debitAlert();
+    await new Email(recepient, undefined, transaction, sender).creditAlert();
+    await new Email(sender, undefined, transaction, recepient).debitAlert();
 
 
     res.status(200).json({

@@ -4,15 +4,16 @@ const htmlToText = require("html-to-text");
 
 
 module.exports = class Email {
-    constructor(user, url, transaction) {
+    constructor(user, url, transaction, moreArg) {
         this.to = user.email;
         this.url = url;
         this.user = user
         this.from = `KolPay <${process.env.EMAIL_FROM}>`;
         this.firstName = user.fullname.split(" ")[1];
         this.transaction = transaction;
+        this.moreArg = moreArg
     }
-
+    
     newTransport() {
         
         return nodemailer.createTransport({
@@ -35,7 +36,8 @@ module.exports = class Email {
             firstName: this.firstName,
             url: this.url,
             subject,
-            transaction: this.transaction
+            transaction: this.transaction,
+            moreArg: this.moreArg
         });
 
         const mailOptions = {

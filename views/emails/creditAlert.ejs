@@ -43,8 +43,8 @@
         <div class="transaction-details">
             <p>Transaction ID: <%= transaction._id %></p>
             <p>Transaction Type: <%= transaction.transactionType.toUpperCase() %></p>
-            <% if (transaction.transactionType === "Transfer") { %>
-                <p>From: </p>
+            <% if (transaction.transactionType === "TRANSFER") { %>
+                <p>From: moreArg.fullname</p>
                 <p>Bank: KolPay</p>
             <% } %>
             <p>Amount Credited: ₦<%= transaction.amount.toFixed(2) %></p>
