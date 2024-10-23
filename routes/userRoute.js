@@ -12,6 +12,9 @@ router.post('/login', authController.login); // User Login
 router.post('/forgotPassword', authController.forgotPassword); // If user forgets his password
 router.patch('/resetPassword/:token', authController.resetPassword); // Reset user password
 
+// ---Protected User Routes---
+router.use(authController.protectRoute);
+
 router.patch('/updatePassword', authController.updatePassword); // Update User Password
 
 // 3. Two Factor Authentication
@@ -28,9 +31,6 @@ router
   .get(userController.userProfile) // Get User Profile details
   .patch(userController.upload.single('photo'), userController.updateProfile) // Update User Profile details
   .delete(userController.deleteUser); // Delete User Account
-
-// router.route("/transactions/id")
-//     .get(userController.getMyTransactions);
 
 router.route('/balance').get(userController.getMyBalance); // Get user account balance
 
