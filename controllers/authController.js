@@ -73,7 +73,7 @@ exports.sendOtp = async (req, res, next) => {
 exports.verifyOtp = async (req, res) => {
   const { otp } = req.body;
   const userId = req.user._id;
-   
+
   const user = await User.findById(userId);
   if (!user) return next(new AppError('User not found!', 404));
 
