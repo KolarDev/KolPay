@@ -1,26 +1,39 @@
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
-exports.genAccNo = async (user, phone) => {
-    const lastUser = await user.countDocuments();
+const genAccNo = async (user, phone) => {
+  const lastUser = await user.countDocuments();
 
-    const serialNumber = (lastUser + 1).toString().padStart(5, "0");
+  const serialNumber = (lastUser + 1).toString().padStart(5, '0');
 
-    const phoneNumber = phone.slice(1, 5);
+  const phoneNumber = phone.slice(1, 5);
 
-    return `${serialNumber}${phoneNumber}`;
-}
+  return `${serialNumber}${phoneNumber}`;
+};
 
-exports.generateOtp = () => {
-    Math.floor(100000 + Math.random() * 900000).toString();
-}
+const generateOtp = () => {
+  Math.floor(100000 + Math.random() * 900000).toString();
+};
 
-// const genAccN = () => {
-//     const lastUser = 7
+const generateInvoicePDF = (invoice) => {
+  const doc = new PDFDocument();
 
-//     const serialNumber = (lastUser + 1).toString().padStart(5, "0");
-//     const phone = "08112789308";
-//     const phoneNumber = phone.slice(1, 5);
+  const filePath = `./invoices/${invoice.invoiceNumber}.pdf`;
 
-//     return `${serialNumber}${phoneNumber}`;
-// }
+  doc.pipe(fs.createWriteStream(filePath));
 
-// console.log(genAccN());
+  doc.fontSize(20).text('Invoice', { align: center });
+  doc.text();
+  doc.text();
+  doc.text();
+  doc.text();
+  doc.end();
+
+  return filePath;
+};
+
+module.exports = {
+  genAccNo,
+  generateOtp,
+  generateInvoicePDF,
+};
