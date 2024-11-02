@@ -13,9 +13,10 @@ const logger = require('./logger');
 const AppError = require('./utils/appError');
 const globalErrHandler = require('./controllers/errorController');
 
+const adminRouter = require('./routes/adminRoutes');
+const invoiceRouter = require('./routes/invoiceRoutes');
 const usersRouter = require('./routes/userRoute');
 const transactionsRouter = require('./routes/transactionRoute');
-const adminRouter = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -82,9 +83,10 @@ app.get('/', (req, res) => {
 });
 
 // Route Handlers
+app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/invoice', invoiceRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/transactions', transactionsRouter);
-app.use('/api/v1/admin', adminRouter);
 
 // When user enters undefined route
 app.all('*', (req, res, next) => {

@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('./../controllers/userController');
 const authController = require('./../controllers/authController');
+const { protectRoute, adminAuth } = require('./../middlewares/authorize');
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ router.post('/forgotPassword', authController.forgotPassword); // If user forget
 router.patch('/resetPassword/:token', authController.resetPassword); // Reset user password
 
 // ---Protected User Routes---
-router.use(authController.protectRoute);
+router.use(protectRoute);
 
 router.patch('/updatePassword', authController.updatePassword); // Update User Password
 
@@ -24,7 +25,7 @@ router
   .post(authController.verify2FaToken);
 
 // 4. User Profile routes
-router.use(authController.protectRoute);
+router.use(protectRoute);
 
 router
   .route('/profile')
@@ -33,5 +34,9 @@ router
   .delete(userController.deleteUser); // Delete User Account
 
 router.route('/balance').get(userController.getMyBalance); // Get user account balance
+
+
+// Restrict below routes to only admins
+router.use(adminAuth('admin', 'Super-admin'));
 
 module.exports = router;

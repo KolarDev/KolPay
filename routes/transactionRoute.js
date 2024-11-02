@@ -1,12 +1,12 @@
 const express = require("express");
-const authController = require("./../controllers/authController");
 const transactionController = require("./../controllers/transactionController");
 const adminController = require("./../controllers/adminController");
+const { protectRoute, adminAuth } = require('./../middlewares/authorize');
 
 const router = express.Router();
 
 // protect route for only loggedIn users
-router.use(authController.protectRoute); 
+router.use(protectRoute); 
 
 router.route("/deposit")
     .post(transactionController.deposit); // deposit funds to kolpay
@@ -19,7 +19,6 @@ router.route("/transfer")
 
 // Get user transaction history
 router.get("/history", transactionController.transactionsHistory);
-
 
 
 module.exports = router;

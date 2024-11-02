@@ -1,11 +1,12 @@
 const Transaction = require('./../models/transactionModel');
 const User = require('./../models/userModel');
 const Invoice = require('./../models/invoiceModel');
+const { getAllAndQuery } = require("./../controllers/factoryHandler");
 const AppError = require('../utils/appError');
 const Email = require('./../utils/notificator');
 
 // ---Get User Invoice Route
-const getInvoice = async (req, res, next) => {
+const createInvoice = async (req, res, next) => {
   try {
     // 1. Get required invoice request info
     const userId = req.user.id;
@@ -71,4 +72,70 @@ const generateInvoice = async (userId, dateRange) => {
   }
 };
 
-module.exports = { getInvoice };
+// Get invoice data by invoiceId
+const getMyInvoices = async (req, res, next) => {
+  try {
+    const invoices = await Invoice.find({ user: req.user._id });
+
+    if (!invoices) return next(new AppError('No invoice found!', 404));
+
+    res.status(204).json({
+      status: 'success',
+      data: {
+        invoices,
+      },
+    });
+  } catch (error) {
+    throw new Error(`Failed to retrieve invoices: ${error.message}`);
+  }
+};
+
+// Get invoice data by invoiceId
+const getInvoice = async (req, res, next) => {
+  try {
+    const { invoiceId } = req.params.id;
+
+    const invoice = await Invoice.findById(invoiceId);
+
+    if (!invoice)
+      return next(new AppError('No invoice found for that Id!', 404));
+
+    res.status(204).json({
+      status: 'success',
+      data: {
+        invoice,
+      },
+    });
+  } catch (error) {
+    throw new Error(`Failed to retrieve invoice: ${error.message}`);
+  }
+};
+
+// Deleting an invoice data.
+const deleteInvoice = async (req, res, next) => {
+  try {
+    const { invoiceId } = req.params.id;
+
+    const invoice = await Invoice.findByIdAndDelete(invoiceId);
+
+    if (!invoice)
+      return next(new AppError('No invoice found for that Id!', 404));
+    res.status(204).json({
+      status: 'success',
+      message: 'Invoice deleted!',
+      data: null,
+    });
+  } catch (error) {
+    throw new Error(`Failed to delete invoice: ${error.message}`);
+  }
+};
+
+const getAllInvoices = getAllAndQuery(Invoice);
+
+module.exports = {
+  getAllInvoices,
+  createInvoice,
+  getMyInvoices,
+  getInvoice,
+  deleteInvoice,
+};

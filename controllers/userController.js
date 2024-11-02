@@ -2,6 +2,7 @@ const multer = require('multer');
 const cloudinary = require('cloudinary');
 const { uploadToCloudinary } = require('./../middlewares/cloudinary');
 const User = require('./../models/userModel');
+const { getAllAndQuery } = require('./../controllers/factoryHandler');
 const AppError = require('./../utils/appError');
 
 // Get User Profile details
@@ -82,3 +83,6 @@ exports.getMyBalance = async (req, res) => {
     },
   });
 };
+
+// Perform all queries on users
+exports.getAllUsers = getAllAndQuery(User);

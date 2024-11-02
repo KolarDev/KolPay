@@ -141,8 +141,9 @@ Upcoming..........
 
 4. Data Sanitization, Secure HTTP headers, Parameter Pollution and several other security techniques against attacks like brute force, XSS, DoS and so on.
 
-## Testing
-All routes are tested using postman API tester.
+5. **Run tests**
+  ```bash
+  npm run test
 
 ## Contributing
 Contributions are welcome! If you want to contribute to this project, please follow these steps:

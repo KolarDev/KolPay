@@ -1,5 +1,6 @@
 const AppError = require('../utils/appError');
 const Transaction = require('./../models/transactionModel');
+const { getAllAndQuery } = require("./../controllers/factoryHandler");
 const User = require('./../models/userModel');
 const Email = require('./../utils/notificator');
 
@@ -146,3 +147,6 @@ exports.transactionsHistory = (model, popOptions) => {
     });
   };
 };
+
+// Perform all queries on transactions
+exports.getAllTransactions = getAllAndQuery(Transaction);
