@@ -1,4 +1,3 @@
-
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 const bcrypt = require('bcryptjs');
@@ -43,6 +42,23 @@ exports.register = async (req, res, next) => {
 
   await new Email(newUser, confirmUrl).sendWelcome(); // Send welcome email including otp
   next();
+};
+
+// Logging user in
+exports.login = async (req, res, next) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return next(new AppError('Provide your username and password!!', 401));
+  }
+
+  const user = await User.findOne({ username }).select('+password');
+
+  if (!user || !(await user.checkPassword(password, user.password))) {
+    return next(new AppError('Invalid Credentials!!', 401));
+  }
+
+  sendToken(user, 200, res);
 };
 
 exports.sendOtp = async (req, res, next) => {
@@ -90,23 +106,6 @@ exports.verifyOtp = async (req, res) => {
     status: 'success',
     message: 'Account Verification Successful !',
   });
-};
-
-// Logging user in
-exports.login = async (req, res, next) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return next(new AppError('Provide your username and password!!', 401));
-  }
-
-  const user = await User.findOne({ username }).select('+password');
-
-  if (!user || !(await user.checkPassword(password, user.password))) {
-    return next(new AppError('Invalid Credentials!!', 401));
-  }
-
-  sendToken(user, 200, res);
 };
 
 
