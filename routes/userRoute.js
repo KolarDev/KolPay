@@ -35,7 +35,6 @@ router
 
 router.route('/balance').get(userController.getMyBalance); // Get user account balance
 
-
 // Restrict below routes to only admins
 router.use(adminAuth('admin', 'Super-admin'));
 

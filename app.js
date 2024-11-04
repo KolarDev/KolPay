@@ -1,18 +1,19 @@
 const express = require('express');
 const bodyparser = require('body-parser');
+const cookieParser = require('cookie-parser');
+// Security
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const helmet = require('helmet');
-const cookieParser = require('cookie-parser');
+// Logging
 const morgan = require('morgan');
-
 const logger = require('./logger');
-
+// Error Handling
 const AppError = require('./utils/appError');
 const globalErrHandler = require('./controllers/errorController');
-
+// Routes
 const adminRouter = require('./routes/adminRoutes');
 const invoiceRouter = require('./routes/invoiceRoutes');
 const usersRouter = require('./routes/userRoute');
@@ -22,6 +23,7 @@ const app = express();
 
 app.use(express.json());
 app.use(bodyparser.json());
+app.use(cookieParser);
 
 const morganFormat = ':method :url :status :response-time ms';
 
@@ -41,10 +43,10 @@ app.use(
   }),
 );
 
-// Develeopment logging
-if ((process.env.NODE_ENV = 'development')) {
-  app.use(morgan('dev'));
-}
+// // Develeopment logging
+// if ((process.env.NODE_ENV = 'development')) {
+//   app.use(morgan('dev'));
+// }
 
 // Set Security HTTP Headers
 app.use(helmet());
@@ -84,7 +86,7 @@ app.get('/', (req, res) => {
 
 // Route Handlers
 app.use('/api/v1/admin', adminRouter);
-app.use('/api/v1/invoice', invoiceRouter);
+app.use('/api/v1/invoices', invoiceRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/transactions', transactionsRouter);
 
