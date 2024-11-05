@@ -52,7 +52,7 @@ const myVirtualCard = async (req, res, next) => {
 const allVirtualCards = async (req, res, next) => {
   const virtualCards = await VirtualCard.find();
 
-  if (!vitualCards) return next('No Virtual card found!', 404);
+  if (!virtualCards) return next('No Virtual card found!', 404);
 
   res.status(200).json({
     status: 'success',
@@ -73,7 +73,7 @@ const editCardDetails = async (req, res, next) => {
     { validateBeforeSave: true },
   );
 
-  if (!vitualCard) return next('No Virtual card found!', 404);
+  if (!virtualCard) return next('No Virtual card found!', 404);
 
   res.status(200).json({
     status: 'success',
@@ -87,7 +87,7 @@ const editCardDetails = async (req, res, next) => {
 const deleteCardDetails = async (req, res, next) => {
   const virtualCard = await findOneAndDelete({ user: req.user._id });
 
-  if (!vitualCard) return next('No Virtual card found!', 404);
+  if (!virtualCard) return next('No Virtual card found!', 404);
 
   res.status(200).json({
     status: 'success',

@@ -1,113 +1,158 @@
+// invoiceController.test.js
+
 const request = require('supertest');
-const { connectDb } = require('./../db/testdb');
-const app = require('../app');
+const app = require('../app'); // Assuming `app.js` is the entry point of your Express app
+const {
+  createInvoice,
+  getMyInvoices,
+  getInvoice,
+  deleteInvoice,
+} = require('../controllers/invoiceController');
+const Invoice = require('../models/invoiceModel');
+const Transaction = require('../models/transactionModel');
+const AppError = require('../utils/appError');
 
-const Invoice = require('../models/Invoice');
+// Mock the models and any other utilities
+jest.mock('../models/transactionModel');
+jest.mock('../models/invoiceModel');
+jest.mock('../utils/notificator');
 
-describe('Invoice Endpoints', () => {
-  beforeAll(connectDb);
-});
+describe('Invoice Controller', () => {
+  describe('createInvoice', () => {
+    it('should create an invoice for a user with transactions within date range', async () => {
+      const userId = 'userId123';
+      const req = {
+        user: { id: userId },
+        body: { startDate: '2023-01-01', endDate: '2023-01-31' },
+      };
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
 
-afterEach(async () => {
-  // Clean up the database after each test
-  await Invoice.deleteMany({});
-});
+      // Mock Transaction and Invoice behavior
+      Transaction.find.mockResolvedValue([{ amount: 50 }, { amount: 100 }]);
+      Invoice.prototype.save = jest.fn().mockResolvedValue();
 
-afterAll(async () => {
-  // Disconnect from the database after all tests are complete
-  await mongoose.connection.close();
-});
+      await createInvoice(req, res, next);
 
-// it('should create a new invoice', async () => {
-//   const newInvoice = {
-//     user: mongoose.Types.ObjectId().toString(),
-//     items: [
-//       { description: 'Item 1', quantity: 2, price: 50 },
-//       { description: 'Item 2', quantity: 1, price: 30 },
-//     ],
-//     dueDate: new Date().toISOString(),
-//   };
+      expect(Transaction.find).toHaveBeenCalledWith({
+        user: userId,
+        date: { $gte: req.body.startDate, $lte: req.body.endDate },
+      });
+      expect(Invoice.prototype.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: { invoice: expect.any(Object) },
+      });
+    });
 
-//   const response = await request(app).post('/api/v1/invoices').send(newInvoice);
+    it('should return error if no transactions found for the period', async () => {
+      const req = {
+        user: { id: 'userId123' },
+        body: { startDate: '2023-01-01', endDate: '2023-01-31' },
+      };
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
 
-//   expect(response.statusCode).toBe(201);
-//   expect(response.body.success).toBe(true);
-//   expect(response.body.data.totalAmount).toBe(130);
-// });
+      Transaction.find.mockResolvedValue([]);
 
-it('should retrieve all invoices', async () => {
-  // Create some test invoices
-  await Invoice.create([
-    {
-      user: mongoose.Types.ObjectId(),
-      items: [{ description: 'Test 1', quantity: 1, price: 100 }],
-      totalAmount: 100,
-      dueDate: new Date(),
-    },
-    {
-      user: mongoose.Types.ObjectId(),
-      items: [{ description: 'Test 2', quantity: 2, price: 50 }],
-      totalAmount: 100,
-      dueDate: new Date(),
-    },
-  ]);
+      await createInvoice(req, res, next);
 
-  const response = await request(app).get('/api/v1/invoices');
-  expect(response.statusCode).toBe(200);
-  expect(response.body.success).toBe(true);
-  expect(response.body.data.length).toBe(2);
-});
-
-it('should retrieve an invoice by ID', async () => {
-  const invoice = await Invoice.create({
-    user: mongoose.Types.ObjectId(),
-    items: [{ description: 'Test Item', quantity: 1, price: 100 }],
-    totalAmount: 100,
-    dueDate: new Date(),
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'failed !',
+        message: 'Error proccessing invoice !',
+        error: expect.anything(),
+      });
+    });
   });
 
-  const response = await request(app).get(`/api/v1/invoices/${invoice._id}`);
-  expect(response.statusCode).toBe(200);
-  expect(response.body.success).toBe(true);
-  expect(response.body.data.totalAmount).toBe(100);
-});
+  describe('getMyInvoices', () => {
+    it('should return all invoices for the user', async () => {
+      const req = { user: { _id: 'userId123' } };
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
 
-it('should update an invoice', async () => {
-  const invoice = await Invoice.create({
-    user: mongoose.Types.ObjectId(),
-    items: [{ description: 'Initial Item', quantity: 1, price: 100 }],
-    totalAmount: 100,
-    dueDate: new Date(),
+      Invoice.find.mockResolvedValue([
+        { _id: 'invoiceId1' },
+        { _id: 'invoiceId2' },
+      ]);
+
+      await getMyInvoices(req, res, next);
+
+      expect(Invoice.find).toHaveBeenCalledWith({ user: req.user._id });
+      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: { invoices: expect.any(Array) },
+      });
+    });
   });
 
-  const updatedData = {
-    items: [{ description: 'Updated Item', quantity: 2, price: 100 }],
-    totalAmount: 200,
-  };
+  describe('getInvoice', () => {
+    it('should return an invoice by ID', async () => {
+      const req = { params: { id: 'invoiceId123' } };
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
 
-  const response = await request(app)
-    .put(`/api/v1/invoices/${invoice._id}`)
-    .send(updatedData);
+      Invoice.findById.mockResolvedValue({ _id: req.params.id });
 
-  expect(response.statusCode).toBe(200);
-  expect(response.body.success).toBe(true);
-  expect(response.body.data.totalAmount).toBe(200);
-  expect(response.body.data.items[0].description).toBe('Updated Item');
-});
+      await getInvoice(req, res, next);
 
-it('should delete an invoice', async () => {
-  const invoice = await Invoice.create({
-    user: mongoose.Types.ObjectId(),
-    items: [{ description: 'Delete Item', quantity: 1, price: 100 }],
-    totalAmount: 100,
-    dueDate: new Date(),
+      expect(Invoice.findById).toHaveBeenCalledWith(req.params.id);
+      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: { invoice: expect.any(Object) },
+      });
+    });
+
+    it('should return 404 if invoice not found', async () => {
+      const req = { params: { id: 'invoiceId123' } };
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
+
+      Invoice.findById.mockResolvedValue(null);
+
+      await getInvoice(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(
+        new AppError('No invoice found for that Id!', 404),
+      );
+    });
   });
 
-  const response = await request(app).delete(`/api/v1/invoices/${invoice._id}`);
-  expect(response.statusCode).toBe(200);
-  expect(response.body.success).toBe(true);
+  describe('deleteInvoice', () => {
+    it('should delete an invoice by ID', async () => {
+      const req = { params: { id: 'invoiceId123' } };
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
 
-  // Verify the invoice was deleted
-  const deletedInvoice = await Invoice.findById(invoice._id);
-  expect(deletedInvoice).toBeNull();
+      Invoice.findByIdAndDelete.mockResolvedValue({ _id: req.params.id });
+
+      await deleteInvoice(req, res, next);
+
+      expect(Invoice.findByIdAndDelete).toHaveBeenCalledWith(req.params.id);
+      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'success',
+        message: 'Invoice deleted!',
+        data: null,
+      });
+    });
+
+    it('should return 404 if invoice not found', async () => {
+      const req = { params: { id: 'invoiceId123' } };
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
+
+      Invoice.findByIdAndDelete.mockResolvedValue(null);
+
+      await deleteInvoice(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(
+        new AppError('No invoice found for that Id!', 404),
+      );
+    });
+  });
 });
