@@ -1,10 +1,11 @@
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { decrypt } = require('dotenv');
 
 const virtualCardSchema = new mongoose.Schema(
   {
-    userId: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -49,7 +50,24 @@ const virtualCardSchema = new mongoose.Schema(
   },
 );
 
-virtualCardSchema.pre();
+// Encrypt sensistive card details and save the encrypted form instead
+virtualCardSchema.pre('save', function (next) {
+  if (this.isModified('cardNumber')) {
+    this.cardNumber = encrypt(this.cardNumber);
+  }
+  if (this.isModified('cvv')) {
+    this.cardNumber = encrypt(this.cvv);
+  }
+  next();
+});
+
+// Decrypt card details when requested
+virtualCardSchema.virtual('decryptedCardNumber').get(function (next) {
+  return decrypt(this.cardNumber);
+});
+virtualCardSchema.virtual('decryptedCvv').get(function (next) {
+  return decrypt(this.cvv);
+});
 
 const VirtualCard = mongoose.model('User', virtualCardSchema);
 
