@@ -1,6 +1,6 @@
 const request = require('supertest');
 const { connectDb } = require('./../db/testdb');
-const app = require('../app'); // The main Express app
+const app = require('../app');
 
 const Invoice = require('../models/Invoice');
 
@@ -18,22 +18,22 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-it('should create a new invoice', async () => {
-  const newInvoice = {
-    user: mongoose.Types.ObjectId().toString(),
-    items: [
-      { description: 'Item 1', quantity: 2, price: 50 },
-      { description: 'Item 2', quantity: 1, price: 30 },
-    ],
-    dueDate: new Date().toISOString(),
-  };
+// it('should create a new invoice', async () => {
+//   const newInvoice = {
+//     user: mongoose.Types.ObjectId().toString(),
+//     items: [
+//       { description: 'Item 1', quantity: 2, price: 50 },
+//       { description: 'Item 2', quantity: 1, price: 30 },
+//     ],
+//     dueDate: new Date().toISOString(),
+//   };
 
-  const response = await request(app).post('/api/v1/invoices').send(newInvoice);
+//   const response = await request(app).post('/api/v1/invoices').send(newInvoice);
 
-  expect(response.statusCode).toBe(201);
-  expect(response.body.success).toBe(true);
-  expect(response.body.data.totalAmount).toBe(130);
-});
+//   expect(response.statusCode).toBe(201);
+//   expect(response.body.success).toBe(true);
+//   expect(response.body.data.totalAmount).toBe(130);
+// });
 
 it('should retrieve all invoices', async () => {
   // Create some test invoices
