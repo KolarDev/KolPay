@@ -19,7 +19,7 @@
 
 ## Project Overview
 
-KolPay is a backend application for a fintech platform built using Node.js and Express.js. It provides users with functionality to manage their financial transactions, such as deposits, withdrawals, and transfers. It also includes an admin dashboard for monitoring user activities, generating reports, invoices and handling transactions.
+KolPay is a backend application for a fintech platform built using Node.js and Express.js. It provides users with functionality to manage their financial transactions, such as deposits by connecting virtual cards, withdrawals, and transfers. It also includes an admin dashboard for monitoring user activities, generating reports, invoices, and handling transactions.
 
 ## Features
 
