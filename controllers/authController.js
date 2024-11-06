@@ -9,39 +9,46 @@ const { genAccNo, generateOtp } = require('../utils/generator');
 
 // Registering user account
 exports.register = async (req, res, next) => {
-  const {
-    fullname,
-    username,
-    email,
-    phone,
-    password,
-    passwordConfirm,
-    passwordChangedAt,
-    role,
-  } = req.body;
+  try {
+    const {
+      fullname,
+      username,
+      email,
+      phone,
+      password,
+      passwordConfirm,
+      passwordChangedAt,
+      role,
+    } = req.body;
 
-  const accountNumber = await genAccNo(User, phone);
+    const accountNumber = await genAccNo(User, phone);
 
-  const newUser = await User.create({
-    fullname,
-    username,
-    email,
-    phone,
-    accountNumber,
-    password,
-    passwordConfirm,
-    passwordChangedAt,
-    role,
-  });
+    const newUser = await User.create({
+      fullname,
+      username,
+      email,
+      phone,
+      accountNumber,
+      password,
+      passwordConfirm,
+      passwordChangedAt,
+      role,
+    });
 
-  console.log(newUser);
+    console.log(newUser);
 
-  sendToken(newUser, 201, res); // Send token to login
+    sendToken(newUser, 201, res); // Send token to login
 
-  confirmUrl = `${req.protocol}://${req.get('host')}/api/v1/user/verifyAccount/:${otp}`;
+    // confirmUrl = `${req.protocol}://${req.get('host')}/api/v1/user/verifyAccount/:${otp}`;
 
-  await new Email(newUser, confirmUrl).sendWelcome(); // Send welcome email including otp
-  next();
+    // await new Email(newUser, confirmUrl).sendWelcome(); // Send welcome email including otp
+  } catch (error) {
+    res.status(500).json({
+      status: 'failed !',
+      message: 'Error creating your account !',
+    });
+    console.log(error);
+  }
 };
 
 // Logging user in
@@ -80,8 +87,9 @@ exports.sendOtp = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({
       status: 'success',
-      error,
+      message: 'Error sending otp !',
     });
+    console.log(error);
   }
 };
 
@@ -108,50 +116,69 @@ exports.verifyOtp = async (req, res) => {
   });
 };
 
-
 // Forgot Password Functionality
 exports.forgotPassword = async (req, res, next) => {
-  // Get user based on valid email
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) {
-    return next(new AppError('No user with this email !', 404));
-  }
+  try {
+    // Get user based on valid email
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return next(new AppError('No user with this email !', 404));
+    }
 
-  // Generate random password reset token
-  const resetToken = user.genPasswordResetToken();
-  await user.save({ validateBeforeSave: false });
+    // Generate random password reset token
+    const resetToken = user.genPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
 
-  // Send it to the user's email
-  const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+    // Send it to the user's email
+    const resetURL =
+      `${req.protocol}://${req.get('host')}/api/v1/users/${resetToken}` /
+        reset -
+      password;
 
-  const message = `Forgot your Password ? Click the button below to reset your password
+    const message = `Forgot your Password ? Click the button below to reset your password
     ${resetURL} \n Ignore this email If you didn't request for this. (Expires in 10mins)`;
+  } catch (error) {
+    res.status(500).json({
+      status: 'failed !',
+      message: 'Error processing your request !',
+    });
+    console.log(error);
+  }
 };
 
 // Reset Password Functionality after forgot password
 exports.resetPassword = async (req, res, next) => {
-  // 1. Get the user based on the token
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(req.params.token)
-    .digest('hex');
-  const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() },
-  });
+  try {
+    // 1. Get the user based on the token
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
 
-  // 2. If token has not expired and there is user, Set the new password
-  if (!user) {
-    return next(new AppError('Invalid or Expired Token, Try again!', 400));
+    // 2. If token has not expired and there is user, Set the new password
+    if (!user) {
+      return next(new AppError('Invalid or Expired Token, Try again!', 400));
+    }
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+    // 3. Update changedPasswordAt property for the user
+    // 4. Log the user in, send jwt
+    sendToken(user, 200, res);
+  } catch (error) {
+    res.status(500).json({
+      status: 'failed !',
+      message: 'Error processing your request !',
+    });
+    console.log(error);
   }
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
-  await user.save();
-  // 3. Update changedPasswordAt property for the user
-  // 4. Log the user in, send jwt
-  sendToken(user, 200, res);
 };
 
 // Password Update Functionality. Logged in users changing password
@@ -185,7 +212,10 @@ exports.twoFaAuth = async (req, res, next) => {
       return data_url;
     });
 
+    // Get the user
     const user = req.user;
+    if (!user) return next(new AppError('You need to login first !', 401));
+    // update the user secretBase32 to be used to verify user
     user.secretBase32 = secret;
     await user.save({ validateBeforeSave: false });
 
@@ -200,10 +230,9 @@ exports.twoFaAuth = async (req, res, next) => {
     res.status(500).json({
       status: 'failed !',
       message: 'Error generating secret code or qrcode !',
-      error,
     });
+    console.log(error);
   }
-  next();
 };
 
 // 2. Verifying the token from Authenticator App
@@ -226,8 +255,8 @@ exports.verify2FaToken = (req, res, next) => {
     res.status(500).json({
       status: 'failed !',
       message: 'Error verifying the token !',
-      error,
     });
+    console.log(error);
   }
 
   next();

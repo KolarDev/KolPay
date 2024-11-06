@@ -79,7 +79,7 @@ const getMyInvoices = async (req, res, next) => {
 
     if (!invoices) return next(new AppError('No invoice found!', 404));
 
-    res.status(204).json({
+    res.status(200).json({
       status: 'success',
       data: {
         invoices,
@@ -100,7 +100,7 @@ const getInvoice = async (req, res, next) => {
     if (!invoice)
       return next(new AppError('No invoice found for that Id!', 404));
 
-    res.status(204).json({
+    res.status(200).json({
       status: 'success',
       data: {
         invoice,

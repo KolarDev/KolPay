@@ -5,6 +5,7 @@ const {
   getAllTransactions,
 } = require('./../controllers/transactionController');
 const { protectRoute, adminAuth } = require('./../middlewares/authorize');
+const { allVirtualCards } = require('./../controllers/virtualCardController');
 
 const router = express.Router();
 
@@ -29,5 +30,8 @@ router.patch('/:id/block', adminController.block);
 router.get('/blocked', adminController.blockedUsers);
 
 router.route('/logs').get(adminController.getAllLogs);
+
+// Admin get all virtual cards
+router.get('virtual-cards', allVirtualCards);
 
 module.exports = router;
