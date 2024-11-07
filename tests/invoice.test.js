@@ -3,6 +3,7 @@
 const request = require('supertest');
 const app = require('../app'); // Assuming `app.js` is the entry point of your Express app
 const {
+  generateInvoice,
   createInvoice,
   getMyInvoices,
   getInvoice,
@@ -81,7 +82,7 @@ describe('Invoice Controller', () => {
       await getMyInvoices(req, res, next);
 
       expect(Invoice.find).toHaveBeenCalledWith({ user: req.user._id });
-      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: 'success',
         data: { invoices: expect.any(Array) },
@@ -100,7 +101,7 @@ describe('Invoice Controller', () => {
       await getInvoice(req, res, next);
 
       expect(Invoice.findById).toHaveBeenCalledWith(req.params.id);
-      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: 'success',
         data: { invoice: expect.any(Object) },
