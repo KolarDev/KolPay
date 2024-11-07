@@ -66,11 +66,12 @@ const allVirtualCards = async (req, res, next) => {
 const editCardDetails = async (req, res, next) => {
   const { cardNumber, expiryDate, cvv, cardHolderName, balance, currency } =
     req.body;
+  const userId = req.user._id;
 
   const virtualCard = await VirtualCard.findByIdAndUpdate(
-    req.user._id,
+    userId,
     { cardNumber, expiryDate, cvv, cardHolderName, balance, currency },
-    { validateBeforeSave: true },
+    // { validateBeforeSave: true },
   );
 
   if (!virtualCard) return next('No Virtual card found!', 404);

@@ -6,6 +6,11 @@ const {
 } = require('./../controllers/transactionController');
 const { protectRoute, adminAuth } = require('./../middlewares/authorize');
 const { allVirtualCards } = require('./../controllers/virtualCardController');
+const {
+  getAllInvoices,
+  getInvoice,
+  deleteInvoice,
+} = require('./../controllers/invoiceController');
 
 const router = express.Router();
 
@@ -33,5 +38,11 @@ router.route('/logs').get(adminController.getAllLogs);
 
 // Admin get all virtual cards
 router.get('virtual-cards', allVirtualCards);
+
+
+// Admin routes to manage Invoices
+router.get('/invoices', getAllInvoices);
+router.get('/:id/invoices', getInvoice);
+router.delete('/invoices', deleteInvoice);
 
 module.exports = router;

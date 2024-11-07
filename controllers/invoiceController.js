@@ -116,6 +116,8 @@ const deleteInvoice = async (req, res, next) => {
   try {
     const { invoiceId } = req.params.id;
 
+    // access logic hereeeeeeeeeeeeeee
+
     const invoice = await Invoice.findByIdAndDelete(invoiceId);
 
     if (!invoice)

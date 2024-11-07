@@ -3,9 +3,13 @@ const userController = require('./../controllers/userController');
 const authController = require('./../controllers/authController');
 const { protectRoute, adminAuth } = require('./../middlewares/authorize');
 const {
+  createInvoice,
+  getMyInvoices,
+  deleteInvoice,
+} = require('./../controllers/invoiceController');
+const {
   addVirtualCard,
   myVirtualCard,
-  allVirtualCards,
   editCardDetails,
   deleteCardDetails,
 } = require('./../controllers/virtualCardController');
@@ -47,12 +51,18 @@ router
 
 router.route('/balance').get(userController.getMyBalance); // Get user account balance
 
+// Routes to manage an Invoice
+router.post('/new-invoice', createInvoice);
+router.get('/my-invoices', getMyInvoices);
+router.delete('/invoices', deleteInvoice);
+
 // Managing user virtual card details
 router
   .route('/virtual-cards')
   .post(addVirtualCard)
   .patch(editCardDetails)
-  .get(myVirtualCard);
+  .get(myVirtualCard)
+  .delete(deleteCardDetails);
 
 // Restrict below routes to only admins
 router.use(adminAuth('admin', 'Super-admin'));

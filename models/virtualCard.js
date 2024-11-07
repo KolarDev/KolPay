@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { decrypt } = require('dotenv');
+const { encrypt, decrypt } = require('dotenv');
 
 const virtualCardSchema = new mongoose.Schema(
   {
@@ -69,6 +69,6 @@ virtualCardSchema.virtual('decryptedCvv').get(function (next) {
   return decrypt(this.cvv);
 });
 
-const VirtualCard = mongoose.model('User', virtualCardSchema);
+const VirtualCard = mongoose.model('VirtualCard', virtualCardSchema);
 
 module.exports = VirtualCard;

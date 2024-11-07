@@ -15,15 +15,14 @@ const AppError = require('./utils/appError');
 const globalErrHandler = require('./controllers/errorController');
 // Routes
 const adminRouter = require('./routes/adminRoutes');
-const invoiceRouter = require('./routes/invoiceRoutes');
 const usersRouter = require('./routes/userRoute');
 const transactionsRouter = require('./routes/transactionRoute');
 
 const app = express();
 
-app.use(express.json());
-app.use(bodyparser.json());
-app.use(cookieParser);
+// app.use(express.json());
+// app.use(bodyparser.json());
+// app.use(cookieParser);
 
 const morganFormat = ':method :url :status :response-time ms';
 
@@ -75,6 +74,7 @@ app.use(
 // Body parser for req.body
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(bodyparser.json());
 app.use(cookieParser());
 
 // Root route for testing server
@@ -86,7 +86,6 @@ app.get('/', (req, res) => {
 
 // Route Handlers
 app.use('/api/v1/admin', adminRouter);
-app.use('/api/v1/invoices', invoiceRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/transactions', transactionsRouter);
 

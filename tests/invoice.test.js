@@ -39,7 +39,7 @@ describe('Invoice Controller', () => {
         date: { $gte: req.body.startDate, $lte: req.body.endDate },
       });
       expect(Invoice.prototype.save).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
         status: 'success',
         data: { invoice: expect.any(Object) },
