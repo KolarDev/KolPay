@@ -1,35 +1,14 @@
-const fwv = require('flutterwave-node-v3');
+const Flutterwave = require('flutterwave-node-v3');
 const AppError = require('../utils/appError');
 const Transaction = require('./../models/transactionModel');
 const { getAllAndQuery } = require('./../controllers/factoryHandler');
 const User = require('./../models/userModel');
 const Email = require('./../utils/notificator');
 
-//              Transaction Receipt
-
-const receipt = (user, transaction) => {
-  return `
-    *** Transaction Receipt ***
-    
-    ----------------------------
-
-    Account Name: ${user.fullname}
-
-    Transaction Type: ${transaction.transactionType.toUpperCase()}
-
-    Amount: ₦${transaction.amount.toFixed(2)}
-
-    Date: ${transaction.date.toLocaleString()}
-
-    Balance: ₦${user.balance.toFixed(2)}
-
-    Transaction ID: ${transaction._id}
-
-    ----------------------------
-
-    Thank you for your transacting with KolPay🤝.
-  `;
-};
+const flw = new Flutterwave(
+  process.env.FLW_PUBLIC_KEY,
+  process.env.FLW_SECRET_KEY,
+);
 
 //                             Deposit Of Funds
 
@@ -151,3 +130,29 @@ exports.transactionsHistory = (model, popOptions) => {
 
 // Perform all queries on transactions
 exports.getAllTransactions = getAllAndQuery(Transaction);
+
+//              Transaction Receipt
+
+const receipt = (user, transaction) => {
+  return `
+    *** Transaction Receipt ***
+    
+    ----------------------------
+
+    Account Name: ${user.fullname}
+
+    Transaction Type: ${transaction.transactionType.toUpperCase()}
+
+    Amount: ₦${transaction.amount.toFixed(2)}
+
+    Date: ${transaction.date.toLocaleString()}
+
+    Balance: ₦${user.balance.toFixed(2)}
+
+    Transaction ID: ${transaction._id}
+
+    ----------------------------
+
+    Thank you for your transacting with KolPay🤝.
+  `;
+};
