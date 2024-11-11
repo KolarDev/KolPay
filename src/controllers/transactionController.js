@@ -4,6 +4,7 @@ const Transaction = require('./../models/transactionModel');
 const { getAllAndQuery } = require('./../controllers/factoryHandler');
 const User = require('./../models/userModel');
 const Email = require('./../utils/notificator');
+const { generateTransferReference } = require('./../utils/generator');
 
 const flw = new Flutterwave(
   process.env.FLW_PUBLIC_KEY,
@@ -31,10 +32,10 @@ const transferInter = async (req, res, next) => {
     amount,
     narration,
     currency,
-    reference,
     callback_url,
     debit_currency,
   } = req.body;
+
   try {
     // Find the user in the database
     const user = await User.findById(req.user._id);
@@ -50,15 +51,11 @@ const transferInter = async (req, res, next) => {
     }
 
     // Validate required fields
-    if (
-      !account_bank ||
-      !account_number ||
-      !amount ||
-      !currency ||
-      !reference
-    ) {
+    if (!account_bank || !account_number || !amount || !currency) {
       return next(new AppError('Input required fields!', 404));
     }
+    // Generate a unique reference id for querying transfers status from flutterwave
+    const reference = await generateTransferReference();
     // Prepare the payload for the transfer request
     const payload = {
       account_bank,
@@ -78,23 +75,26 @@ const transferInter = async (req, res, next) => {
       user.balance -= amount;
       await user.save();
 
+      const transaction = await Transaction.create({
+        userId: req.user.id,
+        transactionType: 'transfer',
+        amount,
+        status: `${transferResponse.status}`,
+      });
+
       res.status(200).json({
         status: 'success',
         message: 'Transfer successful, balance updated',
-        data: transferResponse,
+        data: {
+          transferResponse,
+          transaction,
+        },
       });
     } else {
       res
         .status(400)
         .json({ error: 'Transfer failed', data: transferResponse });
     }
-
-    const transaction = await Transaction.create({
-      userId: req.user.id,
-      transactionType: 'transfer',
-      amount,
-      status: `${transferResponse.status}`,
-    });
   } catch (error) {
     res.status(500).json({
       status: 'Failed!',
