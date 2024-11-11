@@ -24,7 +24,7 @@ const initiateTransfer = async (payload) => {
   }
 };
 
-const transferOthers = async (req, res, next) => {
+const transferInter = async (req, res, next) => {
   const {
     account_bank,
     account_number,
@@ -226,7 +226,7 @@ const transactionsHistory = (model, popOptions) => {
 };
 
 // Perform all queries on transactions
-exports.getAllTransactions = getAllAndQuery(Transaction);
+const getAllTransactions = getAllAndQuery(Transaction);
 
 //              Transaction Receipt
 
@@ -278,4 +278,43 @@ const getATransfer = async (req, res, next) => {
   }
 };
 
-module.exports = {};
+// Get List of banks
+const getBanks = async (req, res) => {
+  const { name } = req.query; // For querying banks by name
+  try {
+    const payload = { country: 'NG' };
+    const response = await flw.Bank.country(payload);
+
+    // Filter banks by name if a name parameter is provided
+    let banks = response.data;
+    if (name) {
+      banks = banks.filter((bank) =>
+        bank.name.toLowerCase().includes(name.toLowerCase()),
+      );
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        banks,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Failed!',
+      message: 'Error fetching banks!',
+    });
+    console.log(error);
+  }
+};
+
+module.exports = {
+  transferInter,
+  transfer,
+  deposit,
+  withdrawal,
+  getATransfer,
+  getBanks,
+  getAllTransactions,
+  transactionsHistory,
+};

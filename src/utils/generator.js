@@ -1,6 +1,13 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
+// Generate unique transfer reference for inter-bank transfers
+const generateTransferReference = () => {
+  return `KolPay_${uuidv4()}`;
+};
+
+// Generate a unique account number for user
 const genAccNo = async (user, phone) => {
   const lastUser = await user.countDocuments();
 
@@ -11,6 +18,7 @@ const genAccNo = async (user, phone) => {
   return `${serialNumber}${phoneNumber}`;
 };
 
+// Generate OTP code for verifications
 const generateOtp = () => {
   Math.floor(100000 + Math.random() * 900000).toString();
 };
@@ -36,4 +44,5 @@ module.exports = {
   genAccNo,
   generateOtp,
   generateInvoicePDF,
+  generateTransferReference,
 };
