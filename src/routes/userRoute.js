@@ -1,18 +1,18 @@
 const express = require('express');
-const userController = require('./controllers/userController');
-const authController = require('./controllers/authController');
-const { protectRoute, adminAuth } = require('../../middlewares/authorize');
+const userController = require('./../controllers/userController');
+const authController = require('./../controllers/authController');
+const { protectRoute, adminAuth } = require('./../middlewares/authorize');
 const {
   createInvoice,
   getMyInvoices,
   deleteInvoice,
-} = require('./controllers/invoiceController');
+} = require('./../controllers/invoiceController');
 const {
   addVirtualCard,
   myVirtualCard,
   editCardDetails,
   deleteCardDetails,
-} = require('./controllers/virtualCardController');
+} = require('./../controllers/virtualCardController');
 
 const router = express.Router();
 

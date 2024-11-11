@@ -11,12 +11,12 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const logger = require('./logger');
 // Error Handling
-const AppError = require('./utils/appError');
-const globalErrHandler = require('./controllers/errorController');
+const AppError = require('./src/utils/appError');
+const globalErrHandler = require('./src/controllers/errorController');
 // Routes
-const adminRouter = require('./routes/adminRoutes');
-const usersRouter = require('./routes/userRoute');
-const transactionsRouter = require('./routes/transactionRoute');
+const adminRouter = require('./src/routes/adminRoutes');
+const usersRouter = require('./src/routes/userRoute');
+const transactionsRouter = require('./src/routes/transactionRoute');
 
 const app = express();
 

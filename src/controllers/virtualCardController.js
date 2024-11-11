@@ -1,9 +1,9 @@
-const AppError = require('../../../utils/appError');
+const AppError = require('./../utils/appError');
 const Transaction = require('./../models/transactionModel');
 const VirtualCard = require('./../models/virtualCard');
 const { getAllAndQuery } = require('./factoryHandler');
 const User = require('./../models/userModel');
-const Email = require('../../../utils/notificator');
+const Email = require('./../utils/notificator');
 const { findOneAndDelete } = require('../models/invoiceModel');
 
 // User add virtual card details

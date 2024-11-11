@@ -5,7 +5,7 @@ const AuditLog = require('./../models/auditLogModel');
 const AppError = require('../utils/appError');
 const { Email, sms } = require('./../utils/notificator');
 const APIqueries = require('../utils/APIqueries');
-const logger = require('./../logger');
+const logger = require('./../../logger');
 
 // Function to simplify logging in each admin operation
 const auditLogger = async (adminId, action, details) => {
@@ -65,26 +65,25 @@ exports.dashboard = async (req, res, next) => {
   }
 };
 
-
 // Admins can update a user's role, isBlocked & active status
 exports.updateUser = async (req, res, next) => {
-    const { active, role } = req.body;
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-  
-    if (!user) return next(new AppError('User not found !', 404));
+  const { active, role } = req.body;
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
-    logger.info(``);
-  
-    res.status(201).json({
-      status: 'success',
-      data: {
-        data: user,
-      },
-    });
-  };
+  if (!user) return next(new AppError('User not found !', 404));
+
+  logger.info(``);
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      data: user,
+    },
+  });
+};
 
 // Admin blocking and unblocking of users functionality
 exports.block = async (req, res, next) => {
@@ -107,7 +106,9 @@ exports.block = async (req, res, next) => {
     await user.save;
 
     // Winston custom logger
-    logger.info(`Admin ${req.user.fullname} ${user.isBlocked === true ? 'Blocked' : 'Unblocked'} user ${user.fullname} with id ${user.id}`);
+    logger.info(
+      `Admin ${req.user.fullname} ${user.isBlocked === true ? 'Blocked' : 'Unblocked'} user ${user.fullname} with id ${user.id}`,
+    );
 
     await auditLogger(
       req.user.id,

@@ -1,6 +1,6 @@
-const AppError = require('../../../utils/appError');
-const APIqueries = require('../../../utils/APIqueries');
-const logger = require('../../../logger');
+const AppError = require('./../utils/appError');
+const APIqueries = require('./../utils/APIqueries');
+const logger = require('./../../logger');
 
 // General query function. This function can perform any query from any database collection
 const getAllAndQuery = (Model) => {

@@ -10,9 +10,103 @@ const flw = new Flutterwave(
   process.env.FLW_SECRET_KEY,
 );
 
+// Initiate Transfer Function
+const initiateTransfer = async (payload) => {
+  try {
+    const response = await flw.Transfer.initiate(payload);
+    return response;
+  } catch (error) {
+    res.status(500).json({
+      status: 'Failed!',
+      message: 'Error Initiating your transfer!',
+    });
+    console.log(error);
+  }
+};
+
+const transferOthers = async (req, res, next) => {
+  const {
+    account_bank,
+    account_number,
+    amount,
+    narration,
+    currency,
+    reference,
+    callback_url,
+    debit_currency,
+  } = req.body;
+  try {
+    // Find the user in the database
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return next(
+        new AppError('User not found! Login before making transfer', 404),
+      );
+    }
+
+    // Check if user has enough balance
+    if (user.balance < amount) {
+      return next(new AppError('Insufficient Fund!', 400));
+    }
+
+    // Validate required fields
+    if (
+      !account_bank ||
+      !account_number ||
+      !amount ||
+      !currency ||
+      !reference
+    ) {
+      return next(new AppError('Input required fields!', 404));
+    }
+    // Prepare the payload for the transfer request
+    const payload = {
+      account_bank,
+      account_number,
+      amount,
+      narration,
+      currency,
+      reference,
+      callback_url,
+      debit_currency,
+    };
+
+    const transferResponse = await initiateTransfer(payload);
+
+    if (transferResponse.status === 'success') {
+      // Deduct the amount from user's balance
+      user.balance -= amount;
+      await user.save();
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Transfer successful, balance updated',
+        data: transferResponse,
+      });
+    } else {
+      res
+        .status(400)
+        .json({ error: 'Transfer failed', data: transferResponse });
+    }
+
+    const transaction = await Transaction.create({
+      userId: req.user.id,
+      transactionType: 'transfer',
+      amount,
+      status: `${transferResponse.status}`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Failed!',
+      message: 'Error processing your transfer!',
+    });
+    console.log(error);
+  }
+};
+
 //                             Deposit Of Funds
 
-exports.deposit = async (req, res, next) => {
+const deposit = async (req, res, next) => {
   // Accept only these fields as request credentials
   const { userId, transactionType, amount } = req.body;
 
@@ -42,15 +136,9 @@ exports.deposit = async (req, res, next) => {
 
 //                        Withdrawal Of Funds
 
-exports.withdrawal = async (req, res, next) => {
+const withdrawal = async (req, res, next) => {
   // Accept only these fields as request credentials
   const { userId, transactionType, amount } = req.body;
-  // Actually create the transaction
-  const transaction = await Transaction.create({
-    userId: req.user.id,
-    transactionType: 'withdrawal',
-    amount,
-  });
 
   const user = await User.findById(req.user.id);
   // return error if insufficient balance
@@ -60,6 +148,14 @@ exports.withdrawal = async (req, res, next) => {
   // update user bance and save
   user.balance -= amount;
   await user.save({ validateBeforeSave: false });
+
+  // Actually create the transaction
+  const transaction = await Transaction.create({
+    userId: req.user.id,
+    transactionType: 'withdrawal',
+    amount,
+    status: 'success',
+  });
 
   // send alert and transaction receipt as email
   await new Email(user, undefined, transaction).debitAlert();
@@ -73,7 +169,7 @@ exports.withdrawal = async (req, res, next) => {
 
 //            Transfer Of Funds
 
-exports.transfer = async (req, res, next) => {
+const transfer = async (req, res, next) => {
   // Accept only these fields as request credentials
   const { amount, recepientAccNo } = req.body;
 
@@ -85,17 +181,18 @@ exports.transfer = async (req, res, next) => {
   if (sender.balance < amount)
     return next(new AppError('Insufficient fund!', 400));
 
-  const transaction = await Transaction.create({
-    userId: req.user.id,
-    transactionType: 'transfer',
-    amount,
-  });
-
   // update balances and save
   sender.balance -= amount;
   recepient.balance += amount;
   await sender.save({ validateBeforeSave: false });
   await recepient.save({ validateBeforeSave: false });
+
+  const transaction = await Transaction.create({
+    userId: req.user.id,
+    transactionType: 'transfer',
+    amount,
+    status: 'success',
+  });
 
   // send transaction alert through email
   await new Email(recepient, undefined, transaction, sender).creditAlert();
@@ -108,7 +205,7 @@ exports.transfer = async (req, res, next) => {
   });
 };
 
-exports.transactionsHistory = (model, popOptions) => {
+const transactionsHistory = (model, popOptions) => {
   async (req, res, next) => {
     let query = model.findById(req.params.id);
     if (popOptions) query = model.findById(req.params.id).populate(popOptions);
@@ -136,7 +233,7 @@ exports.getAllTransactions = getAllAndQuery(Transaction);
 const receipt = (user, transaction) => {
   return `
     *** Transaction Receipt ***
-    
+    ${transaction.status}
     ----------------------------
 
     Account Name: ${user.fullname}
@@ -156,3 +253,29 @@ const receipt = (user, transaction) => {
     Thank you for your transacting with KolPay🤝.
   `;
 };
+
+// Fetch a transfer
+const getATransfer = async (req, res, next) => {
+  const { transferId } = req.body;
+  try {
+    const payload = {
+      id: transferId, // This is the numeric ID of the transfer you want to fetch. It is returned in the call to create a transfer as data.id
+    };
+
+    const response = await flw.Transfer.get_a_transfer(payload);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        response,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Failed!',
+      message: 'Error fetching transfer ',
+    });
+    console.log(error);
+  }
+};
+
+module.exports = {};
