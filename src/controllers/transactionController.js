@@ -11,6 +11,18 @@ const flw = new Flutterwave(
   process.env.FLW_SECRET_KEY,
 );
 
+const verifyFlutterwaveSignature = (req, res, next) => {
+  const secretHash = process.env.FLW_SECRET_HASH;
+  const signature = req.headers['verif-hash'];
+
+  // Compare signature with the secret hash
+  if (!signature || signature !== secretHash) {
+    return next(new AppError('Unauthorized request', 401));
+  }
+
+  next(); // Request is verified, proceed to handle it
+};
+
 // Initiate Transfer Function
 const initiateTransfer = async (payload) => {
   try {
@@ -317,4 +329,5 @@ module.exports = {
   getBanks,
   getAllTransactions,
   transactionsHistory,
+  verifyFlutterwaveSignature,
 };

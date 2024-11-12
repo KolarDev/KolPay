@@ -10,6 +10,7 @@ const {
   getBanks,
   getAllTransactions,
   transactionsHistory,
+  verifyFlutterwaveSignature
 } = require('./../controllers/transactionController');
 
 const router = express.Router();
@@ -26,7 +27,7 @@ router.post('/withdrawal', withdrawal); // withdraw funds from kolpay to kolpay
 
 router.post('/transfer', transfer); // transfer funds from kolpay to kolpay
 
-router.post('/transfer-inter', transferInter); // transfer funds from kolpay to other banks (Inter-bank)
+router.post('/transfer-inter', verifyFlutterwaveSignature, transferInter); // transfer funds from kolpay to other banks (Inter-bank)
 
 // Get user transaction history
 router.get('/all-transactions', getAllTransactions);
