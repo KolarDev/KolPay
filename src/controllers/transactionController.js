@@ -27,7 +27,7 @@ const verifyFlutterwaveSignature = (req, res, next) => {
 const initiateTransfer = async (payload) => {
   try {
     const response = await flw.Transfer.initiate(payload);
-    return response;
+    // return response;
   } catch (error) {
     res.status(500).json({
       status: 'Failed!',
