@@ -66,6 +66,7 @@ const transferInter = async (req, res, next) => {
     if (!account_bank || !account_number || !amount || !currency) {
       return next(new AppError('Input required fields!', 404));
     }
+
     // Generate a unique reference id for querying transfers status from flutterwave
     const reference = await generateTransferReference();
     // Prepare the payload for the transfer request
@@ -79,8 +80,9 @@ const transferInter = async (req, res, next) => {
       callback_url,
       debit_currency,
     };
-
+    console.log(payload);
     const transferResponse = await initiateTransfer(payload);
+    console.log(transferResponse);
 
     if (transferResponse.status === 'success') {
       // Deduct the amount from user's balance
