@@ -39,7 +39,7 @@ KolPay is a fintech API built using Node.js, Express.js, MongoDb & Flutterwave f
 - **Database**: MongoDB (Mongoose)
 - **Authentication**: JWT (JSON Web Tokens)
 - **Payment Service**: flutterwave API
-- **Email Service**: Nodemailer with SendGrid or any other SMTP service
+- **Email Service**: Nodemailer with Brevo SMTP service
 - **Admin Dashboard**: MongoDB Aggregate pipeline and other mongoDB statistics and query methods
 - **Logging**: Winston, Morgan, Audit logs
 

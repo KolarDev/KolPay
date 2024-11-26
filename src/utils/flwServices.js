@@ -5,6 +5,48 @@ const flw = new Flutterwave(
   process.env.FLW_SECRET_KEY,
 );
 
+// Get the flutterwave charges on the transaction bieng made
+const get_fee = async (amount) => {
+  try {
+    const payload = {
+      amount,
+      currency: 'NGN',
+    };
+    const response = await flw.Transaction.fee(payload);
+    return response.data.fee;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const resendHooks = async (tx_ref) => {
+  try {
+    const payload = {
+      tx_ref: tx_ref,
+    };
+    await flw.Transaction.resend_hooks(payload);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const refund = async () => {
+  try {
+    const payload = {
+      id: '5708', //This is the transaction unique identifier. It is returned in the initiate transaction call as data.id
+      amount: '10',
+    };
+    const response = await flw.Transaction.refund(payload);
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = {
+  get_fee,
+  resendHooks,
+};
 // const initTrans = async () => {
 //   try {
 //     const payload = {

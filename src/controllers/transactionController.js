@@ -240,10 +240,47 @@ const transactionsHistory = (model, popOptions) => {
 };
 
 // Perform all queries on transactions
-const getAllTransactions = getAllAndQuery(Transaction);
+const getTransactions = getAllAndQuery(Transaction);
+
+// Get all transactions
+const getAllTransactions = async (req, res, next) => {
+  let { from, to } = req.body;
+
+  if (!from || !to) {
+    const now = new Date();
+    // Get the date of two weeks ago
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(now.getDate() - 14);
+    // Set default values
+    from = twoWeeksAgo.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    to = now.toISOString().split('T')[0];
+  }
+  try {
+    const payload = {
+      from: from,
+      to: to,
+    };
+
+    // To ensure payload is available before proceeding to flw function
+    if (!payload) return next(new AppError('Please provide a dates', 400));
+    // Now fetch the transactions
+    const response = await flw.Transaction.fetch(payload);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        response,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Failed!',
+      message: 'Error fetching transactions',
+    });
+    console.log(error);
+  }
+};
 
 //              Transaction Receipt
-
 const receipt = (user, transaction) => {
   return `
     *** Transaction Receipt ***
