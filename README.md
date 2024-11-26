@@ -19,14 +19,15 @@
 
 ## Project Overview
 
-KolPay is a backend application for a fintech platform built using Node.js and Express.js. It provides users with functionality to manage their financial transactions, such as deposits by connecting virtual cards, withdrawals, and transfers. It also includes an admin dashboard for monitoring user activities, generating reports, invoices, and handling transactions.
+KolPay is a fintech API built using Node.js, Express.js, MongoDb & Flutterwave for payment processing. It allows users to manage their financial transactions, such as funds deposits, withdrawals and inter-bank transactions. It also includes an admin dashboard for monitoring user activities, virtual accounts and generating reports, invoices etc.
 
 ## Features
 
 - **User Authentication**: Sign-up, login, password reset.
 - **User Profiles and Account Management**: Manage user information and view transaction history.
-- **Transaction Management**: Deposit, withdrawal, transfer, and balance checks.
-- **Account Number Generation**: Unique account numbers generated using user information. User's seriel number and Phone number
+- **Transaction Management**: Deposit, withdrawal, inter-bank transfer, and balance checks.
+- **Subcriptions and Airtime Recharge**: uses flutterwave api to provide subcriptions functionalities and airtime recharge
+- **Virtual accounts and virtual cards**: users can create virtual accounts and get virtual cards
 - **Admin Dashboard**: User management, transaction monitoring, reports, and audit logs.
 - **Security**: Data encryption, JWT authentication, and two-factor authentication (Authenticator App & sms), Data Sanitization, Secure HTTP headers, Parameter Pollution and several other security techniques against attacks like brute force, XSS, DoS and so on.
 - **Notifications**: Email and SMS notifications for transactions.
@@ -37,9 +38,10 @@ KolPay is a backend application for a fintech platform built using Node.js and E
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (Mongoose)
 - **Authentication**: JWT (JSON Web Tokens)
+- **Payment Service**: flutterwave API
 - **Email Service**: Nodemailer with SendGrid or any other SMTP service
 - **Admin Dashboard**: MongoDB Aggregate pipeline and other mongoDB statistics and query methods
-- **Logging**: Winston, Audit logs
+- **Logging**: Winston, Morgan, Audit logs
 
 ## Prerequisites
 
@@ -87,6 +89,10 @@ EMAIL_USERNAME=email-service-username
 EMAIL_PASSWORD=email-password
 EMAIL_HOST=email-host
 EMAIL_PORT=email-port
+FLW_PUBLIC_KEY=FLWPUBK_TEST-c658ba90799c8c77ba56e58dc-X
+FLW_SECRET_KEY=FLWSECK_TEST-58d8af6c822a18fe83c3751a8-X
+FLW_ENCRYPTION_KEY=FLWSECK_TEST1ba34bf4a3
+FLW_SECRET_HASH=fintechapi-webhook-secret-key
 
 5. **Install dependencies**
 ```bash
@@ -125,10 +131,16 @@ npm start
 ### Transactions
 - POST /api/v1/transactions/deposit - Deposit funds
 - POST /api/v1/transactions/withdraw - Withdraw funds
-- POST /api/v1/transactions/transfer - Transfer funds
+- POST /api/v1/transactions/transfer - Transfer funds Kolpay to Kolpay
+- POST /api/v1/transactions/transfer-inter - Transfer funds Inter-bank
 - GET /api/v1/transactions/history - Get transaction history
 ### Fraud Detection
 - GET /api/v1/fraud-monitoring - Monitor suspicious activities
+### Virtual Accounts
+- POST /api/v1/transactions/deposit - Deposit funds
+- POST /api/v1/transactions/withdraw - Withdraw funds
+- POST /api/v1/transactions/transfer - Transfer funds Kolpay to Kolpay
+- POST /api/v1/transactions/transfer-inter - Transfer funds Inter-bank
 
 ## Admin Dashboard
 The admin dashboard allows administrators to manage users, monitor transactions, review suspicious activities, and generate reports. Below are the key routes available in the admin dashboard:
