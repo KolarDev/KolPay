@@ -40,7 +40,36 @@ const generateInvoicePDF = (invoice) => {
   return filePath;
 };
 
+
+
+//              Transaction Receipt
+const receipt = (user, transaction) => {
+  return `
+    *** Transaction Receipt ***
+    ${transaction.status}
+    ----------------------------
+
+    Account Name: ${user.fullname}
+
+    Transaction Type: ${transaction.transactionType.toUpperCase()}
+
+    Amount: ₦${transaction.amount.toFixed(2)}
+
+    Date: ${transaction.date.toLocaleString()}
+
+    Balance: ₦${user.balance.toFixed(2)}
+
+    Transaction ID: ${transaction._id}
+
+    ----------------------------
+
+    Thank you for your transacting with KolPay🤝.
+  `;
+};
+
+
 module.exports = {
+  receipt,
   genAccNo,
   generateOtp,
   generateInvoicePDF,

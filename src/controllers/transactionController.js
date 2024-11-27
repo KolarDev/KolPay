@@ -4,7 +4,7 @@ const Transaction = require('./../models/transactionModel');
 const { getAllAndQuery } = require('./../controllers/factoryHandler');
 const User = require('./../models/userModel');
 const Email = require('./../utils/notificator');
-const { generateTransferReference } = require('./../utils/generator');
+const { generateTransferReference, receipt } = require('./../utils/generator');
 
 const flw = new Flutterwave(
   process.env.FLW_PUBLIC_KEY,
@@ -278,31 +278,6 @@ const getAllTransactions = async (req, res, next) => {
     });
     console.log(error);
   }
-};
-
-//              Transaction Receipt
-const receipt = (user, transaction) => {
-  return `
-    *** Transaction Receipt ***
-    ${transaction.status}
-    ----------------------------
-
-    Account Name: ${user.fullname}
-
-    Transaction Type: ${transaction.transactionType.toUpperCase()}
-
-    Amount: ₦${transaction.amount.toFixed(2)}
-
-    Date: ${transaction.date.toLocaleString()}
-
-    Balance: ₦${user.balance.toFixed(2)}
-
-    Transaction ID: ${transaction._id}
-
-    ----------------------------
-
-    Thank you for your transacting with KolPay🤝.
-  `;
 };
 
 // Fetch a transfer
