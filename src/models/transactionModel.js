@@ -20,6 +20,13 @@ const transactionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  refunded: {
+    type: Boolean,
+    default: false,
+  },
+  flwdetails: {
+    type: mongoose.Schema.Types.Mixed,
+  },
   date: {
     type: Date,
     default: Date.now(),

@@ -94,13 +94,13 @@ const transferInter = async (req, res, next) => {
         transactionType: 'transfer',
         amount,
         status: `${transferResponse.status}`,
+        flwdetails: transferResponse,
       });
 
       res.status(200).json({
         status: 'success',
         message: 'Transfer successful, balance updated',
         data: {
-          transferResponse,
           transaction,
         },
       });

@@ -72,4 +72,8 @@ module.exports = class Email {
   async newLoginAlert() {
     await this.send('newLoginAlert', 'New Login Alert');
   }
+
+  async sendRefundNotification() {
+    await this.send('Refund Alert', 'Refund Failed Transaction');
+  }
 };

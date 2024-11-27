@@ -1,6 +1,7 @@
 const express = require('express');
 const adminController = require('./../controllers/adminController');
 const { protectRoute, adminAuth } = require('./../middlewares/authorize');
+const { webhooks } = require('./../utils/flwServices');
 const {
   transferInter,
   transfer,
@@ -10,7 +11,7 @@ const {
   getBanks,
   getAllTransactions,
   transactionsHistory,
-  verifyFlutterwaveSignature
+  verifyFlutterwaveSignature,
 } = require('./../controllers/transactionController');
 
 const router = express.Router();
@@ -28,6 +29,7 @@ router.post('/withdrawal', withdrawal); // withdraw funds from kolpay to kolpay
 router.post('/transfer', transfer); // transfer funds from kolpay to kolpay
 
 router.post('/transfer-inter', verifyFlutterwaveSignature, transferInter); // transfer funds from kolpay to other banks (Inter-bank)
+router.post('/webhooks', verifyFlutterwaveSignature, webhooks); // refund failed transactions webhook endpoint triggered by flutterwave
 
 // Get user transaction history
 router.get('/all-transactions', getAllTransactions);

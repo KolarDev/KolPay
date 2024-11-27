@@ -1,4 +1,6 @@
 const Flutterwave = require('flutterwave-node-v3');
+const Email = require('./notificator');
+const logger = require('./../../logger');
 
 const flw = new Flutterwave(
   process.env.FLW_PUBLIC_KEY,
@@ -30,22 +32,87 @@ const resendHooks = async (tx_ref) => {
   }
 };
 
-const refund = async () => {
+const processRefund = async (transferId, userId, amount) => {
   try {
-    const payload = {
-      id: '5708', //This is the transaction unique identifier. It is returned in the initiate transaction call as data.id
-      amount: '10',
-    };
-    const response = await flw.Transaction.refund(payload);
-    console.log(response);
+    const transferStatus = await checkTransferStatus(transferId); // check the status of the transfer
+
+    if (transferStatus === 'failed') {
+      const payload = {
+        id: transferId,
+        amount,
+      };
+
+      const response = await flw.Transaction.refund(payload);
+
+      if (response.status === 'success') {
+        // Notify the user about the refund
+        // await new Email(userId, response.data).sendRefundNotification();
+
+        return { status: 'success', data: response.data };
+      } else {
+        console.error('Refund failed:', response.message);
+        return { status: 'failed', message: response.message };
+      }
+    }
+
+    return { status: 'failed', message: "Transfer status is not 'FAILED'" };
   } catch (error) {
-    console.log(error);
+    console.error('Error processing refund:', error);
+    return { status: 'failed', message: 'Error processing refund' };
   }
+};
+
+const checkTransferStatus = async (transferId) => {
+  try {
+    const payload = { id: transferId };
+    const response = await flw.Transfer.get(payload);
+    return response.data.status; // Status: 'success' or 'failed'
+  } catch (error) {
+    console.error('Error checking transfer status:', error);
+    return null;
+  }
+};
+// Process refund of failed transactions assuming the the webhook notification data is this
+// {
+//   "event": "transfer.failed",
+//   "data": {
+//     "id": "123456789",
+//     "amount": 5000,
+//     "meta": {
+//       "userId": "987654321"
+//     },
+//     "status": "FAILED",
+//     "message": "Invalid account details"
+//   }
+// }
+const webhooks = async (req, res) => {
+  const { event, data } = req.body;
+
+  if (event === 'transfer.failed') {
+    const transferId = data.id;
+    const userId = data.meta?.userId; // Assuming userId is stored in the metadata
+    const reason = 'Automatic refund due to failed transfer';
+
+    const refundResult = await processRefund(transferId, userId, reason);
+
+    if (refundResult.success) {
+      logger.info('Refund processed successfully via webhook.');
+    } else {
+      console.error('Refund failed via webhook:', refundResult.message);
+    }
+  }
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Webhook Received',
+  });
 };
 
 module.exports = {
   get_fee,
   resendHooks,
+  webhooks,
+  processRefund,
 };
 // const initTrans = async () => {
 //   try {
