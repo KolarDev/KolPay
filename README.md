@@ -19,14 +19,14 @@
 
 ## Project Overview
 
-KolPay is a fintech API built using Node.js, Express.js, MongoDb & Flutterwave for payment processing. It allows users to manage their financial transactions, such as funds deposits, withdrawals and inter-bank transactions. It also includes an admin dashboard for monitoring user activities, virtual accounts and generating reports, invoices etc.
+KolPay is a fintech API built using Node.js, Express.js, MongoDb & Flutterwave for payment processing. It allows users to manage their financial transactions, such as funds deposits, bill payments and inter-bank transactions. It also includes an admin dashboard for monitoring user activities, virtual accounts and generating reports, invoices etc.
 
 ## Features
 
 - **User Authentication**: Sign-up, login, password reset.
 - **User Profiles and Account Management**: Manage user information and view transaction history.
 - **Transaction Management**: Deposit, withdrawal, inter-bank transfer, automatic refunds for failed transactions etc.
-- **Subcriptions and Airtime Recharge**: uses flutterwave api to provide subcriptions functionalities and airtime recharge
+- **Bill Payments and Airtime Recharge**: uses flutterwave api to provide bill payments and airtime recharge
 - **Virtual accounts and virtual cards**: users can create virtual accounts and get virtual cards
 - **Admin Dashboard**: User management, transaction monitoring, reports, and audit logs.
 - **Security**: Data encryption, JWT authentication, and two-factor authentication (Authenticator App & sms), Data Sanitization, Secure HTTP headers, Parameter Pollution and several other security techniques against attacks like brute force, XSS, DoS and so on.

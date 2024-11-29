@@ -7,15 +7,54 @@ const AppError = require('./../utils/appError');
 
 // Get User Profile details
 const userProfile = async (req, res, next) => {
-  const user = await User.findOne(req.user.id);
+  try {
+    const user = await User.findById(req.user.id);
+
+  if (!user) return next(new AppError("User not found", 404));
 
   res.status(200).json({
     status: 'success',
     data: {
-      user,
+      username: user.username,
+      fullname: user.fullname,
+      email: user.email,
+      phone: user.phone,
+      accountNumber: user.accountNumber,
+      nationality: user.nationality,
+      dob: user.dob,
+      address: user.address
     },
   });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed!",
+      message: "Error fetching user data !"
+    });
+    console.log(error);
+  }
 };
+
+
+// Get User Account Balance
+const getMyBalance = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return next(new AppError("User not found", 404));
+    res.status(200).json({
+      status: 'success',
+      data: {
+        balance: user.balance,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed!",
+      message: "Error fetching user balance !"
+    });
+  }
+  console.log(error);
+};
+
 
 // Uploading user photo
 cloudinary.config({
@@ -68,20 +107,24 @@ const updateProfile = async (req, res, next) => {
 
 // Delete User Account
 const deleteUser = async (req, res, next) => {
-  const user = await User.findOne();
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) return next(new AppError("User not found", 404));
+
+    res.status(200).json({
+      status: 'success',
+      data: null
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed!",
+      message: "Error deleting user !"
+    });
+    console.log(error);
+  }
 };
 
-// Get User Account Balance
-const getMyBalance = async (req, res) => {
-  const user = await User.findById(req.user);
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      balance: user.balance,
-    },
-  });
-};
 
 // Perform all queries on users
 const getAllUsers = getAllAndQuery(User);
@@ -93,4 +136,4 @@ module.exports = {
   deleteUser,
   getMyBalance,
   getAllUsers,
-};
+}
