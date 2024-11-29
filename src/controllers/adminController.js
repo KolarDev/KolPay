@@ -177,7 +177,7 @@ exports.deleteUser = async (req, res, next) => {
       );
     }
 
-    user.active = false;
+    user.active = false; // Set user active status to false and not permanently delete the user
     await user.save;
 
     // Winston custom logger

@@ -8,18 +8,10 @@ const Email = require('./../utils/notificator');
 const { genAccNo, generateOtp } = require('../utils/generator');
 
 // Registering user account
-exports.register = async (req, res, next) => {
+const register = async (req, res, next) => {
   try {
-    const {
-      fullname,
-      username,
-      email,
-      phone,
-      password,
-      passwordConfirm,
-      passwordChangedAt,
-      role,
-    } = req.body;
+    const { fullname, username, email, phone, password, passwordConfirm } =
+      req.body;
 
     const accountNumber = await genAccNo(User, phone);
 
@@ -31,8 +23,6 @@ exports.register = async (req, res, next) => {
       accountNumber,
       password,
       passwordConfirm,
-      passwordChangedAt,
-      role,
     });
 
     console.log(newUser);
@@ -52,23 +42,31 @@ exports.register = async (req, res, next) => {
 };
 
 // Logging user in
-exports.login = async (req, res, next) => {
-  const { username, password } = req.body;
+const login = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
 
-  if (!username || !password) {
-    return next(new AppError('Provide your username and password!!', 401));
+    if (!username || !password) {
+      return next(new AppError('Provide your username and password!!', 401));
+    }
+
+    const user = await User.findOne({ username }).select('+password');
+
+    if (!user || !(await user.checkPassword(password, user.password))) {
+      return next(new AppError('Invalid Credentials!!', 401));
+    }
+
+    sendToken(user, 200, res);
+  } catch (error) {
+    res.status(500).json({
+      status: 'failed !',
+      message: 'Error logging in !',
+    });
+    console.log(error);
   }
-
-  const user = await User.findOne({ username }).select('+password');
-
-  if (!user || !(await user.checkPassword(password, user.password))) {
-    return next(new AppError('Invalid Credentials!!', 401));
-  }
-
-  sendToken(user, 200, res);
 };
 
-exports.sendOtp = async (req, res, next) => {
+const sendOtp = async (req, res, next) => {
   try {
     const userId = req.user._id;
     // generate OTP for user and save to the database
@@ -94,7 +92,7 @@ exports.sendOtp = async (req, res, next) => {
 };
 
 // Verify User Account
-exports.verifyOtp = async (req, res) => {
+const verifyOtp = async (req, res) => {
   const { otp } = req.body;
   const userId = req.user._id;
 
@@ -117,7 +115,7 @@ exports.verifyOtp = async (req, res) => {
 };
 
 // Forgot Password Functionality
-exports.forgotPassword = async (req, res, next) => {
+const forgotPassword = async (req, res, next) => {
   try {
     // Get user based on valid email
     const { email } = req.body;
@@ -148,7 +146,7 @@ exports.forgotPassword = async (req, res, next) => {
 };
 
 // Reset Password Functionality after forgot password
-exports.resetPassword = async (req, res, next) => {
+const resetPassword = async (req, res, next) => {
   try {
     // 1. Get the user based on the token
     const hashedToken = crypto
@@ -182,7 +180,7 @@ exports.resetPassword = async (req, res, next) => {
 };
 
 // Password Update Functionality. Logged in users changing password
-exports.updatePassword = async (req, res, next) => {
+const updatePassword = async (req, res, next) => {
   // 1. Get the logged in user from collection
   const user = await User.findById(req.user.id).select('+password');
 
@@ -203,7 +201,7 @@ exports.updatePassword = async (req, res, next) => {
 //                                TWO FACTOR AUTHENTICATION (2FA)
 
 // 1. Generating secret for Authenticator App
-exports.twoFaAuth = async (req, res, next) => {
+const twoFaAuth = async (req, res, next) => {
   try {
     const secret = speakeasy.generateSecret({ name: 'KolPayApp' });
 
@@ -236,7 +234,7 @@ exports.twoFaAuth = async (req, res, next) => {
 };
 
 // 2. Verifying the token from Authenticator App
-exports.verify2FaToken = (req, res, next) => {
+const verify2FaToken = (req, res, next) => {
   try {
     const { userInputToken } = req.body;
 
@@ -289,4 +287,16 @@ const sendToken = (user, statusCode, res) => {
       user,
     },
   });
+};
+
+module.exports = {
+  register,
+  login,
+  sendOtp,
+  verifyOtp,
+  forgotPassword,
+  resetPassword,
+  updatePassword,
+  twoFaAuth,
+  verify2FaToken,
 };

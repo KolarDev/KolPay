@@ -6,7 +6,7 @@ const { getAllAndQuery } = require('./../controllers/factoryHandler');
 const AppError = require('./../utils/appError');
 
 // Get User Profile details
-exports.userProfile = async (req, res, next) => {
+const userProfile = async (req, res, next) => {
   const user = await User.findOne(req.user.id);
 
   res.status(200).json({
@@ -25,8 +25,8 @@ cloudinary.config({
 });
 
 // Update User Profile details
-exports.upload = multer();
-exports.updateProfile = async (req, res, next) => {
+const upload = multer();
+const updateProfile = async (req, res, next) => {
   // 1. Check if the user is not trying to update the password
   if (req.body.password || req.body.passwordConfirm) {
     return new AppError('This route is not for password update!', 400);
@@ -67,13 +67,12 @@ exports.updateProfile = async (req, res, next) => {
 };
 
 // Delete User Account
-exports.deleteUser = async (req, res, next) => {
+const deleteUser = async (req, res, next) => {
   const user = await User.findOne();
 };
 
 // Get User Account Balance
-
-exports.getMyBalance = async (req, res) => {
+const getMyBalance = async (req, res) => {
   const user = await User.findById(req.user);
 
   res.status(200).json({
@@ -85,4 +84,13 @@ exports.getMyBalance = async (req, res) => {
 };
 
 // Perform all queries on users
-exports.getAllUsers = getAllAndQuery(User);
+const getAllUsers = getAllAndQuery(User);
+
+module.exports = {
+  userProfile,
+  upload,
+  updateProfile,
+  deleteUser,
+  getMyBalance,
+  getAllUsers,
+};

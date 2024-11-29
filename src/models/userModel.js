@@ -61,7 +61,6 @@ const userSchema = new mongoose.Schema(
         message: 'Passwords are not the same!!',
       },
     },
-    secretBase32: String,
     nationality: {
       type: String,
       enum: ['Nigeria', 'Ghana', 'Togo'],
@@ -93,9 +92,13 @@ const userSchema = new mongoose.Schema(
       default: false,
       select: false,
     },
+    passwordChangedAt: {
+      type: Date,
+      default: Date.now(),
+    },
+    secretBase32: String,
     otp: Number,
     otpExpires: Date,
-    passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
   },

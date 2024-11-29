@@ -1,6 +1,23 @@
 const express = require('express');
-const userController = require('./../controllers/userController');
-const authController = require('./../controllers/authController');
+const {
+  userProfile,
+  upload,
+  updateProfile,
+  deleteUser,
+  getMyBalance,
+  getAllUsers,
+} = require('./../controllers/userController');
+const {
+  register,
+  login,
+  sendOtp,
+  verifyOtp,
+  forgotPassword,
+  resetPassword,
+  updatePassword,
+  twoFaAuth,
+  verify2FaToken,
+} = require('./../controllers/authController');
 const { protectRoute, adminAuth } = require('./../middlewares/authorize');
 const {
   createInvoice,
@@ -17,39 +34,33 @@ const {
 const router = express.Router();
 
 // 1. Registration and login
-router.post('/register', authController.register); // User Registration
-router.post('/login', authController.login); // User Login
+router.post('/register', register); // User Registration
+router.post('/login', login); // User Login
 
 // 2. Password Management
-router.post('/forgot-password', authController.forgotPassword); // If user forgets his password
-router.patch('/:token/reset-password', authController.resetPassword); // Reset user password
+router.post('/forgot-password', forgotPassword); // If user forgets his password
+router.patch('/:token/reset-password', resetPassword); // Reset user password
 
 // ---Protected User Routes---
 router.use(protectRoute);
 
-router.patch('/updatePassword', authController.updatePassword); // Update User Password
+router.patch('/updatePassword', updatePassword); // Update User Password
 
 // 3. Two Factor Authentication
-router
-  .route('/two-faauth')
-  .patch(authController.twoFaAuth)
-  .post(authController.verify2FaToken);
+router.route('/two-faauth').patch(twoFaAuth).post(verify2FaToken);
 
 // 4. User Profile routes
 router.use(protectRoute);
 
-router
-  .route('/send-otp')
-  .patch(authController.sendOtp)
-  .post(authController.verifyOtp);
+router.route('/send-otp').patch(sendOtp).post(verifyOtp);
 
 router
   .route('/profile')
-  .get(userController.userProfile) // Get User Profile details
-  .patch(userController.upload.single('photo'), userController.updateProfile) // Update User Profile details
-  .delete(userController.deleteUser); // Delete User Account
+  .get(userProfile) // Get User Profile details
+  .patch(upload.single('photo'), updateProfile) // Update User Profile details
+  .delete(deleteUser); // Delete User Account
 
-router.route('/balance').get(userController.getMyBalance); // Get user account balance
+router.route('/balance').get(getMyBalance); // Get user account balance
 
 // Routes to manage an Invoice
 router.post('/new-invoice', createInvoice);
