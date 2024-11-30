@@ -73,6 +73,22 @@ describe('User Controller', () => {
 
   // 2
   describe('Get user balance', () => {
-    it('should return users account balance with 200 status code', async () => {});
+    it('should return users account balance with 200 status code', async () => {
+      const req = httpMocks.createRequest({
+        method: 'GET',
+        user: { id: '123' },
+      });
+      const res = httpMocks.createResponse();
+      User.findById.mockResolvedValue(mockUser);
+      await userProfile(req, res);
+      expect(User.findById).toHaveBeenCalledWith('123');
+      expect(res.statusCode).toBe(200);
+      expect(res._getJSONData()).toEqual({
+        status: 'success',
+        data: {
+          balance: 256000,
+        },
+      });
+    });
   });
 });
