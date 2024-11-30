@@ -129,13 +129,17 @@ const forgotPassword = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // Send it to the user's email
-    const resetURL =
-      `${req.protocol}://${req.get('host')}/api/v1/users/${resetToken}` /
-        reset -
-      password;
+    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/${resetToken}/reset-password`;
 
     const message = `Forgot your Password ? Click the button below to reset your password
     ${resetURL} \n Ignore this email If you didn't request for this. (Expires in 10mins)`;
+
+    console.log(resetURL);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Reset Password link sent to your email',
+    });
   } catch (error) {
     res.status(500).json({
       status: 'failed !',
@@ -205,10 +209,13 @@ const twoFaAuth = async (req, res, next) => {
   try {
     const secret = speakeasy.generateSecret({ name: 'KolPayApp' });
 
-    const qrCode = qrcode.toDataURL(secret.otpauth_url, (err, data_url) => {
-      if (err) throw err;
-      return data_url;
-    });
+    const qrCode = await qrcode.toDataURL(
+      secret.otpauth_url,
+      (err, data_url) => {
+        if (err) throw err;
+        return data_url;
+      },
+    );
 
     // Get the user
     const user = req.user;

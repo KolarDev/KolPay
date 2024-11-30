@@ -1,6 +1,7 @@
 const User = require('./../src/models/userModel');
 const httpMocks = require('node-mocks-http');
 const { mockUser } = require('./mocks/mockUser');
+const AppError = require('./../src/utils/appError');
 const {
   userProfile,
   upload,
@@ -39,7 +40,39 @@ describe('User Controller', () => {
           address: 'No 12 john street lagos lanigeria',
         },
       });
-      // 2.
     });
+    // 1b.
+    it('should return error 404 if user is not found', async () => {
+      const req = httpMocks.createRequest({
+        method: 'GET',
+        user: { id: '123' },
+      });
+      const res = httpMocks.createResponse();
+      const next = jest.fn();
+      User.findById.mockResolvedValue(null);
+      await userProfile(req, res, next);
+      expect(User.findById).toHaveBeenCalledWith('123');
+      expect(next).toHaveBeenCalledWith(new AppError('User not found', 404));
+    });
+    // 1c.
+    it('should return error 500 if there is server error', async () => {
+      const req = httpMocks.createRequest({
+        method: 'GET',
+        user: { id: '123' },
+      });
+      const res = httpMocks.createResponse();
+      const next = jest.fn();
+      User.findById.mockResolvedValue(null);
+      await userProfile(req, res, next);
+      expect(res).toHaveBeenCalledWith({
+        status: 'Failed!',
+        message: 'Error fetching user data !',
+      });
+    });
+  });
+
+  // 2
+  describe('Get user balance', () => {
+    it('should return users account balance with 200 status code', async () => {});
   });
 });

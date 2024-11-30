@@ -10,36 +10,35 @@ const userProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
 
-  if (!user) return next(new AppError("User not found", 404));
+    if (!user) return next(new AppError('User not found', 404));
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      username: user.username,
-      fullname: user.fullname,
-      email: user.email,
-      phone: user.phone,
-      accountNumber: user.accountNumber,
-      nationality: user.nationality,
-      dob: user.dob,
-      address: user.address
-    },
-  });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        username: user.username,
+        fullname: user.fullname,
+        email: user.email,
+        phone: user.phone,
+        accountNumber: user.accountNumber,
+        nationality: user.nationality,
+        dob: user.dob,
+        address: user.address,
+      },
+    });
   } catch (error) {
     res.status(500).json({
-      status: "Failed!",
-      message: "Error fetching user data !"
+      status: 'Failed!',
+      message: 'Error fetching user data !',
     });
     console.log(error);
   }
 };
 
-
 // Get User Account Balance
 const getMyBalance = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    if (!user) return next(new AppError("User not found", 404));
+    if (!user) return next(new AppError('User not found', 404));
     res.status(200).json({
       status: 'success',
       data: {
@@ -48,13 +47,12 @@ const getMyBalance = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      status: "Failed!",
-      message: "Error fetching user balance !"
+      status: 'Failed!',
+      message: 'Error fetching user balance !',
     });
   }
   console.log(error);
 };
-
 
 // Uploading user photo
 cloudinary.config({
@@ -110,21 +108,20 @@ const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
 
-    if (!user) return next(new AppError("User not found", 404));
+    if (!user) return next(new AppError('User not found', 404));
 
     res.status(200).json({
       status: 'success',
-      data: null
+      data: null,
     });
   } catch (error) {
     res.status(500).json({
-      status: "Failed!",
-      message: "Error deleting user !"
+      status: 'Failed!',
+      message: 'Error deleting user !',
     });
     console.log(error);
   }
 };
-
 
 // Perform all queries on users
 const getAllUsers = getAllAndQuery(User);
@@ -136,4 +133,4 @@ module.exports = {
   deleteUser,
   getMyBalance,
   getAllUsers,
-}
+};
