@@ -14,6 +14,7 @@ const logger = require('./logger');
 const AppError = require('./src/utils/appError');
 const globalErrHandler = require('./src/controllers/errorController');
 // Routes
+const { webhooks } = require('./src/utils/flwServices');
 const adminRouter = require('./src/routes/adminRoutes');
 const usersRouter = require('./src/routes/userRoute');
 const transactionsRouter = require('./src/routes/transactionRoute');
@@ -88,6 +89,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/transactions', transactionsRouter);
+app.post('/api/v1/webhooks', webhooks);
 
 // When user enters undefined route
 app.all('*', (req, res, next) => {

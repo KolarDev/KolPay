@@ -112,7 +112,7 @@ const transferInter = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({
       status: 'Failed!',
-      message: 'Error processing your transfer!',
+      message: 'Error initiating your transfer!',
     });
     console.log(error);
   }
