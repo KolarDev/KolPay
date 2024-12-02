@@ -7,6 +7,19 @@ const flw = new Flutterwave(
   process.env.FLW_SECRET_KEY,
 );
 
+// verify Flutterwave Signature
+const verifyFlwSignature = (req, res, next) => {
+  const secretHash = process.env.FLW_SECRET_HASH;
+  const signature = req.headers['verif-hash'];
+
+  // Compare signature with the secret hash
+  if (!signature || signature !== secretHash) {
+    return next(new AppError('Invalid Webhook Signature!', 403));
+  }
+
+  next(); // Request is verified, proceed to handle it
+};
+
 // Get the flutterwave charges on the transaction bieng made
 const get_fee = async (amount) => {
   try {
@@ -108,12 +121,45 @@ const webhooks = async (req, res) => {
   });
 };
 
+// Function to get the name of the bank
+const getBankName = async (bankCode) => {
+  try {
+    const payload = {
+      country: 'NG',
+    };
+
+    const response = await flw.Bank.country(payload);
+
+    if (response && response.data) {
+      // Filter the list to find the bank with the specified bank code
+      const bank = response.data.find((bank) => bank.code === bankCode);
+
+      if (bank) {
+        console.log(`Bank found: ${bank.name}`);
+        return bank.name;
+      } else {
+        console.error(`Bank with code ${bankCode} not found.`);
+        return null;
+      }
+    } else {
+      console.error('Unable to fetch banks or invalid response format.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching banks:', error);
+    return null;
+  }
+};
+
 module.exports = {
   get_fee,
+  getBankName,
   resendHooks,
   webhooks,
   processRefund,
+  verifyFlwSignature,
 };
+
 // const initTrans = async () => {
 //   try {
 //     const payload = {

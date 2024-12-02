@@ -5,37 +5,12 @@ const { getAllAndQuery } = require('./../controllers/factoryHandler');
 const User = require('./../models/userModel');
 const Email = require('./../utils/notificator');
 const { generateTransferReference, receipt } = require('./../utils/generator');
+const { getBankName } = require('./../utils/flwServices');
 
 const flw = new Flutterwave(
   process.env.FLW_PUBLIC_KEY,
   process.env.FLW_SECRET_KEY,
 );
-
-const verifyFlutterwaveSignature = (req, res, next) => {
-  const secretHash = process.env.FLW_SECRET_HASH;
-  const signature = req.headers['verif-hash'];
-
-  // Compare signature with the secret hash
-  if (!signature || signature !== secretHash) {
-    return next(new AppError('Unauthorized request', 401));
-  }
-
-  next(); // Request is verified, proceed to handle it
-};
-
-// Initiate Transfer Function
-const initiateTransfer = async (payload) => {
-  try {
-    const response = await flw.Transfer.initiate(payload);
-    // return response;
-  } catch (error) {
-    res.status(500).json({
-      status: 'Failed!',
-      message: 'Error Initiating your transfer!',
-    });
-    console.log(error);
-  }
-};
 
 const transferInter = async (req, res, next) => {
   const {
@@ -69,6 +44,17 @@ const transferInter = async (req, res, next) => {
 
     // Generate a unique reference id for querying transfers status from flutterwave
     const reference = await generateTransferReference();
+    const bankName = await getBankName(account_bank);
+    // Step 1: Create a transaction record with status 'pending'
+    const transaction = await Transaction.create({
+      userId: user._id,
+      amount,
+      transactionType: 'transfer',
+      recipientAccount: account_number,
+      recipientBank: bankName,
+      narration,
+      status: 'pending',
+    });
     // Prepare the payload for the transfer request
     const payload = {
       account_bank,
@@ -81,38 +67,35 @@ const transferInter = async (req, res, next) => {
       debit_currency,
     };
     console.log(payload);
-    const transferResponse = await initiateTransfer(payload);
-    console.log(transferResponse);
+    // Step 2: Initiate the transfer with the payload
+    const response = await flw.Transfer.initiate(payload);
+    console.log(response);
 
-    if (transferResponse.status === 'success') {
-      // Deduct the amount from user's balance
-      user.balance -= amount;
-      await user.save();
+    // Step 3: Update the transaction with Flutterwave's response
+    transaction.flutterwaveResponse = response;
+    transaction.transactionId = reference;
+    transaction.status =
+      response.status === 'success' ? 'processing' : 'failed';
+    await transaction.save();
 
-      const transaction = await Transaction.create({
-        userId: req.user.id,
-        transactionType: 'transfer',
-        amount,
-        status: `${transferResponse.status}`,
-        flwdetails: transferResponse,
-      });
-
+    // Step 4: Respond to the user
+    if (response.status === 'success') {
       res.status(200).json({
         status: 'success',
-        message: 'Transfer successful, balance updated',
-        data: {
-          transaction,
-        },
+        message: 'Transfer initiated successfully',
+        transaction,
       });
     } else {
-      res
-        .status(400)
-        .json({ error: 'Transfer failed', data: transferResponse });
+      res.status(400).json({
+        status: 'Failed',
+        message: 'Transfer initiation failed!',
+        error: response.message,
+      });
     }
   } catch (error) {
     res.status(500).json({
       status: 'Failed!',
-      message: 'Error initiating your transfer!',
+      message: 'Error processing your transfer!',
     });
     console.log(error);
   }
@@ -343,5 +326,4 @@ module.exports = {
   getBanks,
   getAllTransactions,
   transactionsHistory,
-  verifyFlutterwaveSignature,
 };

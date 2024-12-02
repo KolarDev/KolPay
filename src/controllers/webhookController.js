@@ -1,15 +1,6 @@
-const { verifySignature } = require('../utils/webhookUtils');
-const transactions = require('../models/transactions'); // Replace with your DB model
+const Transaction = require('./../models/transactionModel');
 
-exports.handleWebhook = async (req, res) => {
-  const signature = req.headers['verif-hash'];
-  const secretHash = process.env.FLW_SECRET_HASH;
-
-  // Verify webhook signature
-  if (!verifySignature(signature, secretHash)) {
-    return res.status(403).send('Invalid webhook signature');
-  }
-
+const handleWebhook = async (req, res) => {
   const { event, data } = req.body;
 
   if (!event || !data) {
@@ -50,7 +41,7 @@ exports.handleWebhook = async (req, res) => {
 const handleTransferCompleted = async (data) => {
   console.log('Handling transfer completed:', data);
 
-  const updatedTransaction = await transactions.findOneAndUpdate(
+  const updatedTransaction = await Transaction.findOneAndUpdate(
     { transactionId: data.reference },
     { status: 'completed', flutterwaveResponse: data },
     { new: true },
@@ -67,7 +58,7 @@ const handleTransferCompleted = async (data) => {
 const handleTransferFailed = async (data) => {
   console.log('Handling transfer failed:', data);
 
-  const updatedTransaction = await transactions.findOneAndUpdate(
+  const updatedTransaction = await Transaction.findOneAndUpdate(
     { transactionId: data.reference },
     { status: 'failed', flutterwaveResponse: data },
     { new: true },
@@ -84,7 +75,7 @@ const handleTransferFailed = async (data) => {
 const handleTransactionSuccessful = async (data) => {
   console.log('Handling successful transaction:', data);
 
-  const updatedTransaction = await transactions.findOneAndUpdate(
+  const updatedTransaction = await Transaction.findOneAndUpdate(
     { transactionId: data.reference },
     { status: 'success', flutterwaveResponse: data },
     { new: true },
@@ -95,13 +86,30 @@ const handleTransactionSuccessful = async (data) => {
   } else {
     console.error(`Transaction not found: ${data.reference}`);
   }
+
+  // Get the user ID or account linked to this transaction
+  const userId = updatedTransaction.userId; // Get `userId` for the affected transaction
+  const amount = updatedTransaction.amount; // Amount to credit
+
+  // Update user account balance
+  const updatedUser = await users.findByIdAndUpdate(
+    userId,
+    { $inc: { balance: amount } }, // Increment balance
+    { new: true },
+  );
+
+  if (!updatedUser) {
+    console.error(`User not found: ${userId}`);
+  } else {
+    console.log(`User ${userId}'s account balance updated`);
+  }
 };
 
 // Function to handle failed payment transactions
 const handleTransactionFailed = async (data) => {
   console.log('Handling failed transaction:', data);
 
-  const updatedTransaction = await transactions.findOneAndUpdate(
+  const updatedTransaction = await Transaction.findOneAndUpdate(
     { transactionId: data.reference },
     { status: 'failed', flutterwaveResponse: data },
     { new: true },
@@ -112,4 +120,8 @@ const handleTransactionFailed = async (data) => {
   } else {
     console.error(`Transaction not found: ${data.reference}`);
   }
+};
+
+module.exports = {
+  handleWebhook,
 };

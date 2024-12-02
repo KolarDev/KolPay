@@ -7,6 +7,10 @@ const transactionSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  transactionId: {
+    // for transfer
+    type: String,
+  },
   transactionType: {
     type: String,
     enum: ['deposit', 'withdrawal', 'transfer'],
@@ -16,16 +20,29 @@ const transactionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  recipientAccount: {
+    // for transfer
+    type: String,
+  },
+  recipientBank: {
+    // for transfer
+    type: String,
+  },
   status: {
     type: String,
+    enum: ['pending', 'processing', 'success', 'failed'],
     required: true,
   },
   refunded: {
     type: Boolean,
     default: false,
   },
-  flwdetails: {
+  flutterwaveResponse: {
     type: mongoose.Schema.Types.Mixed,
+  },
+  narration: {
+    type: String,
+    minLength: [4, 'Narration can not be less than 4 characters'],
   },
   date: {
     type: Date,

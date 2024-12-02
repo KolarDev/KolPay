@@ -1,16 +1,14 @@
 const express = require('express');
-const adminController = require('./../controllers/adminController');
-const { getAllUsers } = require('./../controllers/userController');
-const {
-  getAllTransactions,
-} = require('./../controllers/transactionController');
-const { protectRoute, adminAuth } = require('./../middlewares/authorize');
-const { allVirtualCards } = require('./../controllers/virtualCardController');
+const adminController = require('../controllers/adminController');
+const { getAllUsers } = require('../controllers/userController');
+const { getAllTransactions } = require('../controllers/transactionController');
+const { protectRoute, adminAuth } = require('../middlewares/authorize');
+const { allVirtualCards } = require('../controllers/virtualCardController');
 const {
   getAllInvoices,
   getInvoice,
   deleteInvoice,
-} = require('./../controllers/invoiceController');
+} = require('../controllers/invoiceController');
 
 const router = express.Router();
 
@@ -38,7 +36,6 @@ router.route('/logs').get(adminController.getAllLogs);
 
 // Admin get all virtual cards
 router.get('virtual-cards', allVirtualCards);
-
 
 // Admin routes to manage Invoices
 router.get('/invoices', getAllInvoices);
