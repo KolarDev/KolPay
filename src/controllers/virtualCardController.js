@@ -1,3 +1,4 @@
+const Flutterwave = require('flutterwave-node-v3');
 const AppError = require('./../utils/appError');
 const Transaction = require('./../models/transactionModel');
 const VirtualCard = require('./../models/virtualCard');
@@ -5,6 +6,46 @@ const { getAllAndQuery } = require('./factoryHandler');
 const User = require('./../models/userModel');
 const Email = require('./../utils/notificator');
 const { findOneAndDelete } = require('../models/invoiceModel');
+
+// Create virtual accounts
+
+const flw = new Flutterwave(
+  process.env.FLW_PUBLIC_KEY,
+  process.env.FLW_SECRET_KEY,
+);
+
+const createVirtualAcct = async () => {
+  const { email, bvn, tx_ref, phonenumber, firstname, lastname, narration } =
+    req.body;
+
+  try {
+    const payload = {
+      email,
+      is_permanent: true,
+      bvn,
+      tx_ref,
+      phonenumber,
+      firstname,
+      lastname,
+      narration,
+    };
+    const response = await flw.VirtualAcct.create(payload);
+    console.log(response);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        response,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Failed',
+      message: 'Error creating you virtual account!',
+    });
+    console.log(error);
+  }
+};
 
 // User add virtual card details
 const addVirtualCard = async (req, res, next) => {

@@ -85,41 +85,6 @@ const checkTransferStatus = async (transferId) => {
     return null;
   }
 };
-// Process refund of failed transactions assuming the the webhook notification data is this
-// {
-//   "event": "transfer.failed",
-//   "data": {
-//     "id": "123456789",
-//     "amount": 5000,
-//     "meta": {
-//       "userId": "987654321"
-//     },
-//     "status": "FAILED",
-//     "message": "Invalid account details"
-//   }
-// }
-const webhooks = async (req, res) => {
-  const { event, data } = req.body;
-
-  if (event === 'transfer.failed') {
-    const transferId = data.id;
-    const userId = data.meta?.userId; // Assuming userId is stored in the metadata
-    const reason = 'Automatic refund due to failed transfer';
-
-    const refundResult = await processRefund(transferId, userId, reason);
-
-    if (refundResult.success) {
-      logger.info('Refund processed successfully via webhook.');
-    } else {
-      console.error('Refund failed via webhook:', refundResult.message);
-    }
-  }
-
-  res.status(200).json({
-    status: 'success',
-    message: 'Webhook Received',
-  });
-};
 
 // Function to get the name of the bank
 const getBankName = async (bankCode) => {
@@ -155,7 +120,6 @@ module.exports = {
   get_fee,
   getBankName,
   resendHooks,
-  webhooks,
   processRefund,
   verifyFlwSignature,
 };
