@@ -9,15 +9,15 @@ const hpp = require('hpp');
 const helmet = require('helmet');
 // Logging
 const morgan = require('morgan');
-const logger = require('./logger');
+const logger = require('../logger');
 // Error Handling
-const AppError = require('./src/utils/appError');
-const globalErrHandler = require('./src/controllers/errorController');
+const AppError = require('./utils/appError');
+const globalErrHandler = require('./controllers/errorController');
 // Routes
-const webookRouter = require('./src/routes/webhookRoute');
-const adminRouter = require('./src/routes/adminRoute');
-const usersRouter = require('./src/routes/userRoute');
-const transactionsRouter = require('./src/routes/transactionRoute');
+const webookRouter = require('./routes/webhookRoute');
+const adminRouter = require('./routes/adminRoute');
+const usersRouter = require('./routes/userRoute');
+const transactionsRouter = require('./routes/transactionRoute');
 
 const app = express();
 

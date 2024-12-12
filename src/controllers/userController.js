@@ -30,7 +30,7 @@ const userProfile = async (req, res, next) => {
       status: 'Failed!',
       message: 'Error fetching user data !',
     });
-    console.log(error);
+    //console.log(error);
   }
 };
 
@@ -51,7 +51,7 @@ const getMyBalance = async (req, res) => {
       message: 'Error fetching user balance !',
     });
   }
-  console.log(error);
+  //console.log(error);
 };
 
 // Uploading user photo
@@ -119,7 +119,7 @@ const deleteUser = async (req, res, next) => {
       status: 'Failed!',
       message: 'Error deleting user !',
     });
-    console.log(error);
+    //console.log(error);
   }
 };
 

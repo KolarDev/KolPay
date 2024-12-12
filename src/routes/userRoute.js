@@ -50,8 +50,6 @@ router.patch('/updatePassword', updatePassword); // Update User Password
 router.route('/two-faauth').patch(twoFaAuth).post(verify2FaToken);
 
 // 4. User Profile routes
-router.use(protectRoute);
-
 router.route('/send-otp').patch(sendOtp).post(verifyOtp);
 
 router
