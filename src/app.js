@@ -14,7 +14,7 @@ const logger = require('../logger');
 const AppError = require('./utils/appError');
 const globalErrHandler = require('./controllers/errorController');
 // Routes
-const webookRouter = require('./routes/webhookRoute');
+const webhookRouter = require('./routes/webhookRoute');
 const adminRouter = require('./routes/adminRoute');
 const usersRouter = require('./routes/userRoute');
 const transactionsRouter = require('./routes/transactionRoute');
@@ -86,7 +86,7 @@ app.get('/', (req, res) => {
 });
 
 // Route Handlers
-app.use('/api/v1/webhooks', webookRouter);
+app.use('/api/v1/webhooks', webhookRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/transactions', transactionsRouter);
