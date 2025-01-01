@@ -5,5 +5,10 @@
       "source": "/(.*)",
       "destination": "/server.js"
     }
-  ]
+  ],
+  "functions": {
+    "server.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
 }
