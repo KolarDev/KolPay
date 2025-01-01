@@ -2,11 +2,14 @@
   "name": "kolfintech",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "api/server.js",
   "scripts": {
     "test": "jest ./tests --watchAll",
-    "start": "nodemon server.js",
+    "start": "nodemon api/server.js",
     "start:Prod": "cross-env NODE_ENV=production node server.js"
+  },
+  "engines": {
+    "node": "20.x"
   },
   "repository": {
     "type": "git",
