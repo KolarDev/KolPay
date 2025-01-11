@@ -9,7 +9,7 @@ const hpp = require('hpp');
 const helmet = require('helmet');
 // Logging
 const morgan = require('morgan');
-const logger = require('../logger');
+const logger = require('./utils/logger');
 // Error Handling
 const AppError = require('./utils/appError');
 const globalErrHandler = require('./controllers/errorController');

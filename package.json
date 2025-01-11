@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest ./tests --watchAll",
     "start": "nodemon api/server.js",
-    "start:Prod": "cross-env NODE_ENV=production node server.js"
+    "start:Prod": "cross-env NODE_ENV=production node api/server.js"
   },
   "engines": {
     "node": "20.x"

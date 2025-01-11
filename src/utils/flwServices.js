@@ -1,6 +1,6 @@
 const Flutterwave = require('flutterwave-node-v3');
 const Email = require('./notificator');
-const logger = require('./../../logger');
+const logger = require('./logger');
 
 const flw = new Flutterwave(
   process.env.FLW_PUBLIC_KEY,

@@ -3,9 +3,9 @@ const User = require('./../models/userModel');
 const Invoice = require('./../models/invoiceModel');
 const AuditLog = require('./../models/auditLogModel');
 const AppError = require('../utils/appError');
-const { Email, sms } = require('./../utils/notificator');
+const { Email, sms } = require('../utils/notificator');
 const APIqueries = require('../utils/APIqueries');
-const logger = require('./../../logger');
+const logger = require('../utils/logger');
 
 // Function to simplify logging in each admin operation
 const auditLogger = async (adminId, action, details) => {
